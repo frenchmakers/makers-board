@@ -33,10 +33,16 @@
 	<h1><?php echo($makerBoard->title); ?></h1>
         <div class="container-fluid grid">
             <div class="row">
-                <div class="module" data-module="horloge">
+                <?php 
+                    foreach ($makerBoard->configs as $module => $config) {
+                        if(isset($config['code']) && $config['code']!=''){
+                            ?>
+                <div class="module" data-module="<?php echo($config['code']); ?>">
                 </div>
-		<div class="module" data-module="meteo">
-		</div>
+                            <?php
+                        }
+                    }
+                ?>
             </div>
         </div>
 
