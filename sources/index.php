@@ -19,7 +19,7 @@
 
 </head>
 <body>
-	<?= $makerBoard->title; ?>
+	<?php echo($makerBoard->title); ?>
 	<h1>Makers Board</h1>
 	<div class="container">
 

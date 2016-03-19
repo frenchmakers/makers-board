@@ -18,7 +18,7 @@ class makerBoard {
 			if ($file == '.' || $file == '..') {
                         	continue;
                   	}
-			$json_data = file_get_contents("modules/$file/module.conf");
+			$json_data = file_get_contents("modules/$file/module.json");
 			$config = json_decode($json_data, true);
    			$this->modules[$i] = '<div id="num'. $i .'">
 			    		<script type="text/javascript">activate_module("num' . $i .'","' . $file  . '", "' . $config["file"] . '", "1");</script>
