@@ -1,6 +1,9 @@
 (function($){
     var refreshHorloge=function(){
-        $.module('horloge').html(new Date());        
+        //$.module('horloge').html(new Date());
+        $.refreshModule('horloge', function(data){
+            $.module('horloge').html(data);
+        });
     };
     var horloge=function(){
         setTimeout(function () {

@@ -8,8 +8,10 @@ class makerBoard {
         var $configs = array();
 
 	function init(){
-		$this->title = 'testrere';
-		$this->loadModule();
+            $json_data = file_get_contents(dirname(__FILE__)."/config/application.json");
+            $config = json_decode($json_data, true);
+            $this->title = $config["title"];
+            $this->loadModule();
 	}
 	
 	function loadModule(){
