@@ -1,6 +1,6 @@
 function activate_module(name, directory,type, seconds, args) {
   	render_module(name,directory, type, args);
-  	if (seconds > 0) {
+	if (seconds  == "0") {
     		setInterval("render_module('" + name + "', '" + directory + "', '"+type+"', '"+args+"')", (seconds * 1000));
 	}
 }

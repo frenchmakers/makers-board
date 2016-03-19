@@ -39,8 +39,11 @@
             <div class="row">
                 <div class="module" data-module="horloge">
                 </div>
+		<div class="module" data-module="meteo">
+		</div>
             </div>
         </div>
+
 	<div class="container">
 
 
