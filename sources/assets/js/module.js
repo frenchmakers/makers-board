@@ -18,7 +18,6 @@
     var refreshDashboard = function(){
         $.refreshModule('dashboard', function(data){
             var rVal = parseInt(data);
-            console.log(rVal, lastRefresh)
             if(lastRefresh<rVal){
                 document.location.reload();
                 lastRefresh = rVal;

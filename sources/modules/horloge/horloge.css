@@ -11,17 +11,18 @@
   font-weight       : bold;
   text-align        : center;
   width: auto;
+  height: auto;
 }
 
 div.horloge_heure
 {
-  font-size         : 80px;
+  font-size         : 150px;
   background-color  : rgba(0, 0, 0, 1);
 }
 
 div.horloge_date
 {
-  font-size         : 30px;
+  font-size         : 40px;
   background-color  : rgba(0, 0, 0, 1);
 }
 
