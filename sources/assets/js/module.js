@@ -14,10 +14,11 @@
     };
     
     // Actualisation du dashboard
-    var lastRefresh=0;
+    var lastRefresh=$("body").data("last-refresh");
     var refreshDashboard = function(){
         $.refreshModule('dashboard', function(data){
             var rVal = parseInt(data);
+            console.log(rVal, lastRefresh)
             if(lastRefresh<rVal){
                 document.location.reload();
                 lastRefresh = rVal;

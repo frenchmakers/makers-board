@@ -14,10 +14,6 @@
     	<!-- Bootstrap -->
      	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
         <link href="assets/css/main.css" rel="stylesheet" type="text/css"/>
-	<script src="assets/js/jquery-1.12.2.min.js"></script>
-        <script src="assets/js/bootstrap.min.js"></script>
-<!--	<script src="assets/js/moduleRendering.js"></script>-->
-        <script src="assets/js/module.js" type="text/javascript"></script>
         <?php
         // Génération des styles CSS
             foreach ($makerBoard->configs as $module => $config) {
@@ -33,7 +29,7 @@
             }
         ?>
 </head>
-<body>
+<body data-last-refresh="<?php echo($makerBoard->lastRefresh) ?>">
 	<h1><?php echo($makerBoard->title); ?></h1>
         <div class="container-fluid grid">
             <div class="row">
@@ -53,6 +49,10 @@
 //        		}
 	        ?>		
 	</div>
+	<script src="assets/js/jquery-1.12.2.min.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
+<!--	<script src="assets/js/moduleRendering.js"></script>-->
+        <script src="assets/js/module.js" type="text/javascript"></script>
         <?php
         // Génération des scripts JS
             foreach ($makerBoard->configs as $module => $config) {
