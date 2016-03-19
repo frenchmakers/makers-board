@@ -1,8 +1,5 @@
 {
-	"name":"Module de test",
-	"file":"module_exemple.php",
-	"update":1
-
-
-
+    "name":"Module de test",
+    "file":"module_exemple.php",
+    "update":1
 }

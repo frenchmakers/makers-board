@@ -1,4 +1,6 @@
 {
-	"name":"Module horloge",
-        "scripts": "horloge.js"
+    "code": "horloge",
+    "name": "Module horloge",
+    "scripts": "horloge.js",
+    "styles": "horloge.css"
 }

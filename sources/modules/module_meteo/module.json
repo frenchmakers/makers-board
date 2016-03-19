@@ -1,4 +1,5 @@
 {
-	"name":"Module meteo",
-        "scripts": "meteo.js"
+    "code": "meteo",
+    "name":"Module meteo",
+    "scripts": "meteo.js"
 }
