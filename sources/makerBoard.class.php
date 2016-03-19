@@ -5,6 +5,7 @@ class makerBoard {
 	var $style;
 	var $modules;
 	var $title;
+        var $configs = array();
 
 	function init(){
 		$this->title = 'testrere';
@@ -15,11 +16,16 @@ class makerBoard {
 		$i = 0;
 		$dir = opendir('modules');
 		while ($file = readdir($dir)) {
-			if ($file == '.' || $file == '..') {
+			if ($file == '.' || $file == '..' || is_dir($file)) {
                         	continue;
                   	}
-			$json_data = file_get_contents("modules/$file/module.json");
+                        $configFile = "modules/$file/module.json";
+                        if(!is_file($configFile)) {  
+                            continue;
+                        }
+			$json_data = file_get_contents($configFile);
 			$config = json_decode($json_data, true);
+                        $this->configs[$file] = $config;
    			$this->modules[$i] = '<div id="num'. $i .'">
 			    		<script type="text/javascript">activate_module("num' . $i .'","' . $file  . '", "' . $config["file"] . '", "1");</script>
     				</div>';

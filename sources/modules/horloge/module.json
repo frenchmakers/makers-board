@@ -1,0 +1,4 @@
+{
+	"name":"Module horloge",
+        "scripts": "horloge.js"
+}

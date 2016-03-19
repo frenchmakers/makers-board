@@ -13,14 +13,21 @@
     	<title>MakerBoard</title>
     	<!-- Bootstrap -->
      	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
+        <link href="assets/css/main.css" rel="stylesheet" type="text/css"/>
 	<script src="assets/js/jquery-1.12.2.min.js"></script>
         <script src="assets/js/bootstrap.min.js"></script>
 	<script src="assets/js/moduleRendering.js"></script>
-
+        <script src="assets/js/module.js" type="text/javascript"></script>
 </head>
 <body>
 	<?php echo($makerBoard->title); ?>
 	<h1>Makers Board</h1>
+        <div class="container-fluid grid">
+            <div class="row">
+                <div class="module" data-module="horloge">
+                </div>
+            </div>
+        </div>
 	<div class="container">
 
 
@@ -30,6 +37,18 @@
         		}
 	        ?>		
 	</div>
-
+        <?php
+                foreach ($makerBoard->configs as $module => $config) {
+                    if(isset($config["scripts"])){
+                        if(is_array($config["scripts"])){
+                            foreach ($config["scripts"] as $script) {
+                                echo("<script src='modules/$module/$script' type='text/javascript'></script>");
+                            }
+                        }else{
+                            echo("<script src='modules/$module/{$config["scripts"]}' type='text/javascript'></script>");
+                        }
+                    }
+                }
+        ?>
 </body>
 </html>
