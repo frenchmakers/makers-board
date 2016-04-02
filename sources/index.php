@@ -58,6 +58,7 @@
 	<script src="assets/js/jquery-1.12.2.min.js"></script>
         <script src="assets/js/bootstrap.min.js"></script>
 <!--	<script src="assets/js/moduleRendering.js"></script>-->
+        <script src="assets/js/board.js" type="text/javascript"></script>
         <script src="assets/js/module.js" type="text/javascript"></script>
         <?php
         // Génération des scripts JS

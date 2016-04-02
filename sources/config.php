@@ -1,17 +1,17 @@
 <?php
+// Initialisation
+include 'makerBoard.class.php';
+$makerBoard = new makerBoard();
 
 // Traitement des commandes
 $message = "";
 $command = $_GET["command"];
 if ($command === "refresh-dashboard") {
-    $file = __DIR__ . "/datas/refresh-dashboard";
-    file_put_contents($file, time());
+    $makerBoard->setLastRefresh();
     $message = "L'ordre de rafraichissement est lancé.";
 }
 
 // Chargement des modules
-include 'makerBoard.class.php';
-$makerBoard = new makerBoard();
 $makerBoard->init();
 ?>
 <!DOCTYPE html>
@@ -45,8 +45,15 @@ $makerBoard->init();
             }
             ?>
             </div>
+            
             <div class="row">
                 <div class="col-md-8">
+                    <h2>Informations générales</h2>
+                    <div>
+                        <input type="text" name="title" class="form-control" />
+                    </div>            
+                    
+                    <h2>Organisation des modules</h2>
                     <div class="gridster">
                         <ul>
                             <li data-sizey="2" data-sizex="2" data-col="4" data-row="1">

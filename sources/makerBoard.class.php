@@ -2,6 +2,26 @@
 
 class makerBoard {
 
+    /*
+        Lecture de la dernière actualisation du tableau de bord
+    */
+    public function getLastRefresh(){
+        $file = __DIR__."/datas/refresh-dashboard";
+        if(is_file($file)){
+            return file_get_contents($file);
+        }else{
+            return "0";
+        }        
+    }
+    
+    /*
+        Actualisation du tableau de bord
+    */    
+    public function setLastRefresh(){
+        $file = __DIR__ . "/datas/refresh-dashboard";
+        file_put_contents($file, time());        
+    }
+    
 	var $style;
 	var $modules;
 	var $title;
