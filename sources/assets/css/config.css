@@ -1,6 +1,9 @@
 .content {
   color: white;
 }
+.gridster ul {
+    min-height: 120px;
+}
 .gridster .gs-w {
   background: #61A9CF;
   cursor: move;
