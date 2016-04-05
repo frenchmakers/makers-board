@@ -13,22 +13,4 @@
         });
     };
     
-    // Actualisation du dashboard
-    var lastRefresh=$("body").data("last-refresh");
-    var refreshDashboard = function(){
-        $.refreshModule('dashboard', function(data){
-            var rVal = parseInt(data);
-            if(lastRefresh<rVal){
-                document.location.reload();
-                lastRefresh = rVal;
-            } 
-        });
-    };
-    var timerRefreshDashboard = function(){
-        setTimeout(function(){
-            refreshDashboard();
-            timerRefreshDashboard();
-        }, 10*1000);
-    };
-    timerRefreshDashboard();
 })(jQuery);
