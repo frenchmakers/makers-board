@@ -150,18 +150,21 @@ $board = $makerBoard->readBoardConfig();
                 var gridster = null;
                 //$(document).ready(function () {
                 gridster = $(".gridster ul").gridster({
-                    widget_base_dimensions: ['auto', 48],
+                    widget_base_dimensions: ['auto', 24],
                     autogenerate_stylesheet: true,
                     min_cols: 1,
                     max_cols: 12,
                     min_rows: 4,
-                    max_rows: 12,
+                    max_rows: 24,
                     widget_margins: [4, 4],
                     serialize_params: function($w, wgd) { 
                         return { col: wgd.col, row: wgd.row, size_x: wgd.size_x, size_y: wgd.size_y, type: $w.data("type"), module: $w.data("module") } 
                     },
                     resize: {
-                        enabled: false
+                        enabled: true,
+                        stop: function(e, ui){
+                            saveLayout();
+                        }
                     },
                     /*collision:{
                         on_overlap_start: function(collider_data) { console.log(collider_data); },

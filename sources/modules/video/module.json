@@ -1,0 +1,7 @@
+{
+    "code": "video",
+    "name":"Affichage d'une video",
+    "scripts": "video.js",
+    "w":3,
+    "h":3
+}
