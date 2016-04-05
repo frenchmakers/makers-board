@@ -112,6 +112,7 @@ foreach($makerBoard->configs as $module => $config) {
                     enabled: false,
                 }
             }).data('gridster');
+            gridster.disable();
         })(jQuery);
     </script>
 </body>
