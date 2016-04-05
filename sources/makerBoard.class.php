@@ -46,6 +46,16 @@ class makerBoard {
         }
         return $config;
     }
+    
+    /*
+        Recherche un module d'après un code 
+    */
+    public function findModule($module){
+        foreach ($this->configs as $mod) {
+            if($mod['code']==$module) return $mod;
+        }
+        return false;
+    }
 
     var $style;
     var $modules;
@@ -81,6 +91,8 @@ class makerBoard {
             }
             $json_data = file_get_contents($configFile);
             $config = json_decode($json_data, true);
+            if(!isset($config["w"])) $config["w"] = 1;
+            if(!isset($config["h"])) $config["h"] = 1;
             $this->configs[$file] = $config;
             //$this->modules[$i] = '<div id="num'.$i.'">
 			//    		<script type="text/javascript">activate_module("num'.$i.'","'.$file.'", "'.$config["file"].'", "1");</script>

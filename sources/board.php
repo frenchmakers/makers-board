@@ -14,5 +14,6 @@ if ($cmd == "refresh") {
     $layout = isset($_REQUEST["layout"]) ? $_REQUEST["layout"] : "";
     if ($layout != "") {
         $makerBoard->writeBoardLayout($layout);
+        $makerBoard->setLastRefresh();
     }
 }

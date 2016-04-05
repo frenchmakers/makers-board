@@ -2,10 +2,10 @@
 
 .module[data-module='horloge']
 {
-  right             : 0px;
+  /*right             : 0px;
   top               : 0px;
   position          : absolute;
-  overflow          : hidden;
+  overflow          : hidden;*/
   background-color  : rgba(0, 0, 0, 1);
   color             : #FFF;
   font-weight       : bold;

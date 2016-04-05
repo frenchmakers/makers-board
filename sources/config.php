@@ -5,7 +5,7 @@ $makerBoard = new makerBoard();
 
 // Traitement des commandes
 $message = "";
-$command = $_REQUEST["command"];
+$command = isset($_REQUEST["command"]) ? $_REQUEST["command"] : "";
 if ($command === "refresh-dashboard") {
     $makerBoard->setLastRefresh();
     $message = "L'ordre de rafraichissement est lancé.";
@@ -69,7 +69,7 @@ $board = $makerBoard->readBoardConfig();
                             <?php
                             foreach ($board["layout"] as $elm) {
                                 if($elm["type"]=="module"){
-                                    $module = "";
+                                    $module = $makerBoard->findModule($elm['module']);
                                 }
                             ?>
                                 <li 
@@ -82,7 +82,7 @@ $board = $makerBoard->readBoardConfig();
                                     >
                                     <?php if($elm["type"]=="module"){ ?>
                                     <div class="gridster-box" data-module="<?php echo($elm["module"]) ?>">
-                                        <div class="module-title">{{title}}</div>
+                                        <div class="module-title"><?php echo($module['name']) ?></div>
                                         <div class="module-content"></div>
                                         <a href="#" class="handle-close">&times;</a>
                                     </div>
@@ -95,72 +95,6 @@ $board = $makerBoard->readBoardConfig();
                             <?php 
                             }
                             ?>
-                            <!--<li data-sizey="2" data-sizex="2" data-col="4" data-row="1">
-                                <div class="gridster-box">
-                                    <div class="display">a</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="1" data-row="3">
-                                <div class="gridster-box">
-                                    <div class="display">b</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="2" data-row="3">
-                                <div class="gridster-box">
-                                    <div class="display">c</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="2" data-sizex="2" data-col="1" data-row="1">
-                                <div class="gridster-box">
-                                    <div class="display">d</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="3" data-row="1">
-                                <div class="gridster-box">
-                                    <div class="display">e</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="3" data-row="3">
-                                <div class="gridster-box">
-                                    <div class="display">f</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="4" data-row="3">
-                                <div class="gridster-box">
-                                    <div class="display">g</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="6" data-row="1">
-                                <div class="gridster-box">
-                                    <div class="display">h</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="5" data-row="3">
-                                <div class="gridster-box">
-                                    <div class="display">i</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="3" data-row="2">
-                                <div class="gridster-box">
-                                    <div class="display">j</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>
-                            <li data-sizey="1" data-sizex="1" data-col="6" data-row="2">
-                                <div class="gridster-box">
-                                    <div class="display">k</div>
-                                    <a href="#" class="handle-close">&times;</a>
-                                </div>
-                            </li>-->
                         </ul>
                     </div>                    
                 </div>
@@ -183,7 +117,7 @@ $board = $makerBoard->readBoardConfig();
                             <ul>
                                 <?php
                                 foreach ($makerBoard->configs as $module => $config) {
-                                    echo("<li class='module' data-module='{$config['code']}'><a href='#'>{$config['name']}</a></li>");
+                                    echo("<li class='module' data-module='{$config['code']}' data-w='{$config['w']}' data-h='{$config['h']}'><a href='#'>{$config['name']}</a></li>");
                                 }
                                 ?>
                             </ul>
@@ -216,12 +150,12 @@ $board = $makerBoard->readBoardConfig();
                 var gridster = null;
                 //$(document).ready(function () {
                 gridster = $(".gridster ul").gridster({
-                    widget_base_dimensions: ['auto', 64],
+                    widget_base_dimensions: ['auto', 48],
                     autogenerate_stylesheet: true,
                     min_cols: 1,
                     max_cols: 12,
                     min_rows: 4,
-                    max_rows: 6,
+                    max_rows: 12,
                     widget_margins: [4, 4],
                     serialize_params: function($w, wgd) { 
                         return { col: wgd.col, row: wgd.row, size_x: wgd.size_x, size_y: wgd.size_y, type: $w.data("type"), module: $w.data("module") } 
@@ -284,7 +218,9 @@ $board = $makerBoard->readBoardConfig();
                         $("<li></li>")
                         .attr("data-type", "module")
                         .attr("data-module", module)
-                        .append(template) 
+                        .append(template),
+                        parent.data('w'),
+                        parent.data('h')
                     );
                     bindModuleClose(mod);
                     saveLayout();
