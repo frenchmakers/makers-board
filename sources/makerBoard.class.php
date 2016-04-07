@@ -93,6 +93,7 @@ class makerBoard {
             $config = json_decode($json_data, true);
             if(!isset($config["w"])) $config["w"] = 1;
             if(!isset($config["h"])) $config["h"] = 1;
+            $config["config"] = file_exists("modules/$file/config.php") === true;
             $this->configs[$file] = $config;
             //$this->modules[$i] = '<div id="num'.$i.'">
 			//    		<script type="text/javascript">activate_module("num'.$i.'","'.$file.'", "'.$config["file"].'", "1");</script>
