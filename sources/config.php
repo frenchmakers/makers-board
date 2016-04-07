@@ -168,6 +168,7 @@ $board = $makerBoard->readBoardConfig();
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->        
+        <script src="assets/js/board-editor.js"></script>
         <script type="text/javascript">
             (function($){
                 var gridster = null;
