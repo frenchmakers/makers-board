@@ -100,7 +100,9 @@ $board = $makerBoard->readBoardConfig();
                             }
                             ?>
                         </ul>
-                    </div>                    
+                    </div>
+                    <div class="board-editor">
+                    </div>
                 </div>
                 <div class="col-md-4">
                     <div class="panel panel-default">
