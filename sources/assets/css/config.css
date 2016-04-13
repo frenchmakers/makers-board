@@ -59,3 +59,24 @@
     text-decoration:none;
     color: black;
 }
+
+.board-editor{
+    background: #61A9CF;
+    height: 300px;
+    padding:2px;
+}
+
+.board-editor .module{
+    position: relative;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: bold;
+    width: 80px;
+    height: 80px;
+    top:0;
+    left:0;
+    background-color: white;
+    border: 1px solid gray;
+    padding: 2px;
+}
+

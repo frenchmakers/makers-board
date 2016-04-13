@@ -31,6 +31,7 @@ $board = $makerBoard->readBoardConfig();
         <script src="assets/js/jquery-1.12.2.min.js"></script>
         <script src="assets/js/bootstrap.min.js"></script>
         <script src="assets/js/jquery.gridster.min.js" type="text/javascript"></script>
+        <script src="assets/js/jquery-ui.min.js" type="text/javascript"></script>
     </head>
     <body>
         <div class="container">
@@ -102,6 +103,15 @@ $board = $makerBoard->readBoardConfig();
                         </ul>
                     </div>
                     <div class="board-editor">
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -273,6 +283,13 @@ $board = $makerBoard->readBoardConfig();
                        $("#configModal").modal();                        
                    }, "html")
                 });
+                
+                
+                // Gestion du board
+                $(".board-editor .module").draggable({
+                    containment:"parent",
+                    grid:[20,20]
+                }).resizable();
             })(jQuery);
         </script>
     </body>
