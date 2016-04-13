@@ -63,11 +63,12 @@
 .board-editor{
     background: #61A9CF;
     height: 300px;
-    padding:2px;
+    padding: 0px;
+    position: relative;
 }
 
 .board-editor .module{
-    position: relative;
+    position: absolute;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
     font-weight: bold;

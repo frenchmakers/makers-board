@@ -62,6 +62,17 @@ $board = $makerBoard->readBoardConfig();
                     </form>            
                     
                     <h2>Organisation des modules</h2>
+                    <div class="board-editor">
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
+                        <div class="module">
+                            <div class="module-title">Titre du module</div>
+                        </div>
+                    </div>
                     <div>
                         <a href="#" class="cmd-add-separator">Ajouter un séparateur</a>
                     </div>
@@ -101,17 +112,6 @@ $board = $makerBoard->readBoardConfig();
                             }
                             ?>
                         </ul>
-                    </div>
-                    <div class="board-editor">
-                        <div class="module">
-                            <div class="module-title">Titre du module</div>
-                        </div>
-                        <div class="module">
-                            <div class="module-title">Titre du module</div>
-                        </div>
-                        <div class="module">
-                            <div class="module-title">Titre du module</div>
-                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -288,7 +288,21 @@ $board = $makerBoard->readBoardConfig();
                 // Gestion du board
                 $(".board-editor .module").draggable({
                     containment:"parent",
-                    grid:[20,20]
+                    grid:[20,20],
+                    stop: function(){
+                        var mods=[];
+                        $(".board-editor .module").each(function(){
+                            var p=$(this).position();
+                            mods.push({
+                                x: p.left,
+                                y: p.top,
+                                w: $(this).width(),
+                                h: $(this).height(),
+                            });
+                        });
+                        //alert(JSON.stringify(mods));
+                        $.post("api.php/display", {modules: mods});
+                    }
                 }).resizable();
             })(jQuery);
         </script>

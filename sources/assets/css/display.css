@@ -1,0 +1,49 @@
+/* CSS reset */
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td { 
+    margin:0;
+    padding:0;
+}
+html,body {
+    margin:0;
+    padding:0;
+}
+fieldset,img { 
+    border:0;
+}
+
+html{
+    height: 100%;
+}
+body{
+    background-color: black;
+    color:white;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100%;
+}
+
+.layout{
+    width: 100%;
+    height: 100%;
+    margin:0;
+    padding: 0; 
+    overflow-y: hidden;   
+}
+
+h1{
+    text-align: center;
+}
+
+.board{
+    height: 100%;
+    position: relative;
+}
+
+.module{
+    position: absolute;
+    background-color: gray;
+    width:100px;
+    height:100px;
+    top:0px;
+    left:80px;
+    bottom: 1px;
+}
