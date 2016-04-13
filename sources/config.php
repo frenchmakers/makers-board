@@ -62,6 +62,12 @@ $board = $makerBoard->readBoardConfig();
                     </form>            
                     
                     <h2>Organisation des modules</h2>
+                    <div class="form-inline">
+                        <label>Ecran de référence</label>
+                        <select class="form-control">
+                            <option>1024x768</option>
+                        </select>
+                    </div>
                     <div class="board-editor">
                         <div class="module">
                             <div class="module-title">Titre du module</div>
@@ -72,46 +78,6 @@ $board = $makerBoard->readBoardConfig();
                         <div class="module">
                             <div class="module-title">Titre du module</div>
                         </div>
-                    </div>
-                    <div>
-                        <a href="#" class="cmd-add-separator">Ajouter un séparateur</a>
-                    </div>
-                    <div class="gridster editor">
-                        <ul>
-                            <?php
-                            foreach ($board["layout"] as $elm) {
-                                if($elm["type"]=="module"){
-                                    $module = $makerBoard->findModule($elm['module']);
-                                }
-                            ?>
-                                <li 
-                                    data-sizey="<?php echo($elm["size_y"]) ?>" 
-                                    data-sizex="<?php echo($elm["size_x"]) ?>" 
-                                    data-col="<?php echo($elm["col"]) ?>" 
-                                    data-row="<?php echo($elm["row"]) ?>" 
-                                    data-type="<?php echo($elm["type"]) ?>" 
-                                    <?php echo(isset($elm["module"]) ? "data-module='".$elm["module"]."'" : "") ?>
-                                    >
-                                    <?php if($elm["type"]=="module"){ ?>
-                                    <div class="gridster-box" data-module="<?php echo($elm["module"]) ?>">
-                                        <div class="module-title"><?php echo($module['name']) ?></div>
-                                        <div class="module-content">
-                                            <?php if($module['config']) { ?>
-                                            <a class="cmd-config" href="#">Configuration</a>
-                                            <?php } ?>
-                                        </div>
-                                        <a href="#" class="handle-close">&times;</a>
-                                    </div>
-                                    <?php } else { ?>
-                                    <div class="gridster-box separator">
-                                        <a href="#" class="handle-close">&times;</a>
-                                    </div>            
-                                    <?php } ?>
-                                </li>                                
-                            <?php 
-                            }
-                            ?>
-                        </ul>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -288,10 +254,12 @@ $board = $makerBoard->readBoardConfig();
                 // Gestion du board
                 $(".board-editor .module").draggable({
                     containment:"parent",
-                    grid:[20,20],
+                    //grid:[20,20],
+                    snap: true,
+                    snapMode: 'outer',
                     stop: function(){
                         var mods=[];
-                        $(".board-editor .module").each(function(){
+                        $(".board-editor .module").each(function() {
                             var p=$(this).position();
                             mods.push({
                                 x: p.left,
@@ -300,8 +268,13 @@ $board = $makerBoard->readBoardConfig();
                                 h: $(this).height(),
                             });
                         });
-                        //alert(JSON.stringify(mods));
-                        $.post("api.php/display", {modules: mods});
+                        $.post("api.php/display", {
+                            size:{
+                                'width': $(".board-editor").innerWidth(),
+                                'height': $(".board-editor").innerHeight()
+                            },
+                            modules: mods
+                        });
                     }
                 }).resizable();
             })(jQuery);
