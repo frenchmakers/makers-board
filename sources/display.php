@@ -27,8 +27,15 @@
     </div>
 
     <script src="assets/js/jquery-1.12.2.min.js"></script>
+    <script src="assets/js/display.js"></script>
     <script type="text/javascript">
         (function($) {
+            // Activation en mode non éditable
+            $(".board").display({
+                refresh: 3*1000,
+                editable: false
+            });
+            
             var updateLayout = function(){
                 $.get("api.php/display", {_t:new Date().getTime()}, function(data){
                     $.each(data.modules, function(idx, mod){
@@ -46,7 +53,7 @@
                 updateLayout();
                 setTimeout(timerUpdateLayout, 1000);
             };
-            timerUpdateLayout();
+            //timerUpdateLayout();
         })(jQuery);
     </script>
 

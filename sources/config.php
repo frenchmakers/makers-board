@@ -26,11 +26,9 @@ $board = $makerBoard->readBoardConfig();
         
         <!-- Bootstrap -->
         <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="assets/css/jquery.gridster.min.css" rel="stylesheet" type="text/css"/>
         <link href="assets/css/config.css" rel="stylesheet" type="text/css"/>
         <script src="assets/js/jquery-1.12.2.min.js"></script>
         <script src="assets/js/bootstrap.min.js"></script>
-        <script src="assets/js/jquery.gridster.min.js" type="text/javascript"></script>
         <script src="assets/js/jquery-ui.min.js" type="text/javascript"></script>
     </head>
     <body>
@@ -64,18 +62,21 @@ $board = $makerBoard->readBoardConfig();
                     <h2>Organisation des modules</h2>
                     <div class="form-inline">
                         <label>Ecran de référence</label>
-                        <select class="form-control">
-                            <option>1024x768</option>
+                        <select id="screen-size" class="form-control">
+                            <option value="1024x768" data-w="1024" data-h="768">1024x768</option>
+                            <option value="current">Taille actuelle</option>
                         </select>
+                        <label>Taille actuelle de l'affichage</label>
+                        <span class="form-control-static">1234x789</span>
                     </div>
                     <div class="board-editor">
-                        <div class="module">
+                        <div class="module" data-id="1" data-module="module1">
                             <div class="module-title">Titre du module</div>
                         </div>
-                        <div class="module">
+                        <div class="module" data-id="2" data-module="module2">
                             <div class="module-title">Titre du module</div>
                         </div>
-                        <div class="module">
+                        <div class="module" data-id="3" data-module="module1">
                             <div class="module-title">Titre du module</div>
                         </div>
                     </div>
@@ -145,138 +146,28 @@ $board = $makerBoard->readBoardConfig();
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->        
         <script src="assets/js/board-editor.js"></script>
+        <script src="assets/js/display.js"></script>
         <script type="text/javascript">
             (function($){
-                var gridster = null;
-                //$(document).ready(function () {
-                gridster = $(".gridster ul").gridster({
-                    widget_base_dimensions: ['auto', 24],
-                    autogenerate_stylesheet: true,
-                    min_cols: 1,
-                    max_cols: 12,
-                    min_rows: 4,
-                    max_rows: 24,
-                    widget_margins: [4, 4],
-                    serialize_params: function($w, wgd) { 
-                        return { col: wgd.col, row: wgd.row, size_x: wgd.size_x, size_y: wgd.size_y, type: $w.data("type"), module: $w.data("module") } 
-                    },
-                    resize: {
-                        enabled: true,
-                        stop: function(e, ui){
-                            saveLayout();
-                        }
-                    },
-                    /*collision:{
-                        on_overlap_start: function(collider_data) { console.log(collider_data); },
-                        on_overlap: function(collider_data) { console.log(collider_data); },
-                        on_overlap_stop: function(collider_data) { console.log(collider_data); }
-                    },*/
-                    draggable:{
-                        stop: function(e, ui){
-                            saveLayout();
-                        }
-                    }
-                }).data('gridster');
-                // Gestion de la sérialisation
-                var saving = false;
-                var saveLayout = function(){
-                    if(saving !== false) {
-                        if(saving === true) saving = "required";
-                        return;
-                    }
-                    saving = true;
-                    $.post("board.php", {
-                        "cmd": "save-board-layout",
-                        "layout": JSON.stringify(gridster.serialize())
-                    }, function(){
-                        if(saving === "required"){
-                            saving = false;
-                            saveLayout();
-                        }else{
-                            saving = false;
-                        }
-                    });                    
-                };
-                // Gestion de la suppression d'un module
-                var bindModuleClose = function(elm){
-                    $(".handle-close", elm).click(function(e){
-                        e.preventDefault();
-                        gridster.remove_widget( $(this).parents("li").first());
-                        saveLayout();
-                    });
-                };
-                bindModuleClose($(".gridster"));
-                // Gestion de l'ajout d'un module
-                $(".modules li a").click(function(e){
-                    e.preventDefault();
-                    var parent = $(this).parents("li").first();
-                    var module = parent.data("module");
-                    if(!module || module==='') { return ;}
-                    var template = $(".template-module").html();
-                    template = template
-                           .replace("{{module}}", module)
-                           .replace("{{title}}", $(this).text())
-                    ;
-                    var mod = gridster.add_widget( 
-                        $("<li></li>")
-                        .attr("data-type", "module")
-                        .attr("data-module", module)
-                        .append(template),
-                        parent.data('w'),
-                        parent.data('h')
-                    );
-                    bindModuleClose(mod);
-                    saveLayout();
-                });
-                // Gestion de l'ajout d'un séparateur
-                $("a.cmd-add-separator").click(function(e){
-                   e.preventDefault();
-                    var template = $(".template-separator").html();
-                    var mod = gridster.add_widget( 
-                        $("<li></li>")
-                        .attr("data-type", "separator")
-                        .append(template)
-                    );
-                    bindModuleClose(mod);
-                    saveLayout();                   
-                });
-                // Gestion de la configuration
-                $("a.cmd-config").click(function(e){
-                   e.preventDefault();
-                   var parent = $(this).parents("li").first();
-                   $.get("module.php", { 'module': parent.data("module"), cmd: "config", '_ts': new Date().getTime() }, function(data){
-                       $("#configModal .modal-body").html(data);
-                       $("#configModal").modal();                        
-                   }, "html")
+                // Sélection de la taille d'écran
+                $("#screen-size").change(function(){
+                    var $opt = $("option:selected", this);
+                    if($opt.val()!="current"){
+                        console.log($(".board-editor").width(), $(".board-editor").height());
+                        console.log($opt.data("w"), $opt.data("h"));
+                        var bw = $(".board-editor").width() / $opt.data("w");
+                        var bh = $opt.data("h") * bw;
+                        console.log(bw, bh);
+                         $(".board-editor").height(bh);
+                    } 
                 });
                 
+                // Activation du board
+                $(".board-editor").display({
+                    refresh: false,
+                    editable: true
+                }).display("refresh");
                 
-                // Gestion du board
-                $(".board-editor .module").draggable({
-                    containment:"parent",
-                    //grid:[20,20],
-                    snap: true,
-                    snapMode: 'outer',
-                    stop: function(){
-                        var mods=[];
-                        $(".board-editor .module").each(function() {
-                            var p=$(this).position();
-                            mods.push({
-                                x: p.left,
-                                y: p.top,
-                                w: $(this).width(),
-                                h: $(this).height(),
-                            });
-                        });
-                        $.post("api.php/display", {
-                            size:{
-                                'width': $(".board-editor").innerWidth(),
-                                'height': $(".board-editor").innerHeight()
-                            },
-                            modules: mods
-                        });
-                    }
-                }).resizable();
             })(jQuery);
         </script>
     </body>
