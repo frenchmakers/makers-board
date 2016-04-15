@@ -109,12 +109,11 @@
                     // Modification des modules
                     smodule.css({
                         left: (mod.x * ratioX) + "px",
-                        top: (mod.y * ratioY) + "px",
-                        width: (mod.w * ratioX) + "px",
-                        height: (mod.h * ratioY) + "px"
+                        top: (mod.y * ratioY) + "px"
                     }).attr({
                         "data-module": mod.module
-                    });
+                    }).width(Math.max(12, mod.w * ratioX))
+                    .height(Math.max(12, mod.h * ratioY));
                     // Marque le module comme défini
                     cModules[id] = true;
                 }
@@ -178,6 +177,13 @@
             containment: "parent",
             snap: true,
             snapMode: 'outer',
+            stop: function () {
+                saveCommand.call($display);
+            }
+        });
+        // Activation du dimensionnement
+        $module.resizable({
+            containment: "parent",
             stop: function () {
                 saveCommand.call($display);
             }
