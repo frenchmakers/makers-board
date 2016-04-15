@@ -153,20 +153,21 @@ $board = $makerBoard->readBoardConfig();
                 $("#screen-size").change(function(){
                     var $opt = $("option:selected", this);
                     if($opt.val()!="current"){
-                        console.log($(".board-editor").width(), $(".board-editor").height());
-                        console.log($opt.data("w"), $opt.data("h"));
+                        //console.log($(".board-editor").width(), $(".board-editor").height());
+                        //console.log($opt.data("w"), $opt.data("h"));
                         var bw = $(".board-editor").width() / $opt.data("w");
                         var bh = $opt.data("h") * bw;
-                        console.log(bw, bh);
+                        //console.log(bw, bh);
                          $(".board-editor").height(bh);
+                         $(".board-editor").display("save");
                     } 
                 });
                 
-                // Activation du board
+                // Activation du board en mode edition
                 $(".board-editor").display({
                     refresh: false,
                     editable: true
-                }).display("refresh");
+                }).display("refresh", {updateBoardSize: true});
                 
             })(jQuery);
         </script>

@@ -10,17 +10,20 @@
             options = command;
             command = "enable";
         }
-        var settings = $.extend({}, $.fn.display.defauls, options);
+        options = $.extend({}, $.fn.display.defauls, options);
 
         // Application du module
         return this.each(function () {
             var $this = $(this);
             switch (command) {
                 case "enable":
-                    enableCommand.call($this, settings);
+                    enableCommand.call($this, options);
                     break;
                 case "refresh":
-                    refreshCommand.call($this);
+                    refreshCommand.call($this, options);
+                    break;
+                case "save":
+                    saveCommand.call($this, options);
                     break;
             }
         });
@@ -54,18 +57,29 @@
     };
 
     // Actualisation d'un display
-    var refreshCommand = function () {
+    var refreshCommand = function (options) {
         var $this = $(this);
         var settings = $this.data("display-settings");
-
+        if(!settings) return;
+        options = $.extend({
+            "sendBoardSize": false,
+            "updateBoardSize": false
+        }, options);
         // 
         var sdata = {
-            //dw: $this.width(),
-            //dh: $this.height(),
             _t: new Date().getTime()
         };
+        if(options.sendBoardSize) {
+            sdata.dw = $this.width();
+            sdata.dh = $this.height();
+        }
         $.get(settings.api + "/display", sdata, function (data) {
-            //console.log(data);
+            // Recalcul la taille de l'écran ?
+            if(options.updateBoardSize) {
+                var bw = $this.width() / data.size.width;
+                var bh = data.size.height * bw;
+                $this.height(bh);                
+            }
             // Calcul des ratios
             var ratioX = $this.width() / data.size.width;
             var ratioY = $this.height() / data.size.height;
@@ -121,6 +135,7 @@
     var saveCommand = function(){
         var $this = $(this);
         var settings = $this.data("display-settings");
+        if(!settings) return;
         // Extraction des informations de layout
         var layout = {
             size: {
