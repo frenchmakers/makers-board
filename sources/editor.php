@@ -2,10 +2,6 @@
 // Initialisation
 include 'makerBoard.class.php';
 $makerBoard = new makerBoard();
-
-// Chargement des modules
-//$makerBoard->init();
-//$board = $makerBoard->readBoardConfig();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -79,6 +75,18 @@ $makerBoard = new makerBoard();
                         </div>
                         <div class="panel-body">
                             <ul>
+                                <?php
+                                foreach ($makerBoard->getModules() as $module) {
+                                    echo(<<<HTML
+<li>
+    <a href="#" class="add-module-command" data-module="{$module['code']}" data-title="{$module['name']}">
+        {$module['name']}
+    </a>
+</li>
+HTML
+);
+                                } 
+                                ?>
                             </ul>
                         </div>
                     </div>

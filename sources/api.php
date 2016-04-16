@@ -11,7 +11,7 @@ $response = FALSE;
 
 // Commande ping d'un board
 if( ($r = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) {
-    $update = $makerBoard->getBoadLastUpdate($r["board"]);
+    $update = $makerBoard->getBoardLastUpdate($r["board"]);
     if($update === FALSE){
         if($r["board"] == "default"){
             $response = '0';
@@ -23,7 +23,7 @@ if( ($r = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) 
 // Commande board
 else if( ($r = urlMatch("board/{board}", $path)) !== FALSE ) {
     if($method == "get"){
-        $layout = $makerBoard->getBoadLayout($r["board"]);
+        $layout = $makerBoard->getBoardLayout($r["board"]);
         if($layout === FALSE) {
             if($r["board"] == "default"){
                 $response = '{ "lastUpdate": 0, "size": { "width":1024, "height":768 }, "modules": [] }';
@@ -31,6 +31,10 @@ else if( ($r = urlMatch("board/{board}", $path)) !== FALSE ) {
         } else {
             $response = $layout;
         }
+    }else if($method == "post") {
+        $json = file_get_contents('php://input');
+        $makerBoard->setBoardLayout($r["board"], $json);
+        $response = TRUE;
     }
 }
 /*else if($path == "board"){
@@ -80,7 +84,7 @@ function urlMatch($pattern, $url) {
         $regex = preg_quote($pattern);
     }
     if($regex === "") return FALSE;
-    $regex = "#^${regex}$#i";
+    $regex = "#^{$regex}$#i";
     
     $cnt = preg_match($regex, $url, $matches);
     if($cnt>0) {

@@ -20,20 +20,23 @@
             sh = $("#current-screen-size").data("height");
         }
         // Recalcul la hauteur de la zone d'édition
-        console.log("sw: " + sw, "sh: " + sh);
+        //console.log("sw: " + sw, "sh: " + sh);
         var bw = $(".board-editor").width();
         var ratio = bw / sw;
         var bh = sh * ratio;
-        console.log("bw: " + bw, "ratio: " + ratio, "bh: " + bh);
-        $(".board-editor").height(bh);
-        //$(".board-editor").board("save");
+        //console.log("bw: " + bw, "ratio: " + ratio, "bh: " + bh);
+        $(".board-editor").board("resize",{
+            'height': bh
+        });
+        $(".board-editor").board("save");
     });
 
     // Activation du board en mode edition
     $(".board-editor").board({
         refresh: false,
         editable: true,
-        board: function () { return $("#current-board").val(); }
+        board: function () { return $("#current-board").val(); },
+        moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"><div class="title">{{title}}</div></div>'
     }).board("load", {
         done: function (data) {
             var $this = this;
@@ -47,6 +50,15 @@
                 'height': bh
             });
         }
+    });
+    
+    // Activation des liens d'ajout des modules
+    $(".add-module-command").click(function(e){
+        e.preventDefault();
+        $(".board-editor").board("module.add", {
+            "module": $(this).data("module"),
+            "title": $(this).data("title")
+        });
     });
 
 })(jQuery);

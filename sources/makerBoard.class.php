@@ -1,31 +1,96 @@
 <?php 
 
 class makerBoard {
+    
+    private $_Modules = NULL;
+    
     /*
         Calcul le dossier de données d'un tableau de board
     */
     private function getBoardDataFolder($board) {
-        return __DIR__."/datas/$board";
+        return __DIR__."/datas/boards/$board";
     }
     
     /*
-        Lecture de la configuration d'un tableau de bord
+        Lecture d'un contenu de tableau de bord
     */
-    public function getBoadLayout($board) {
+    private function readBoardDataFile($board, $file) {
         $folder = $this->getBoardDataFolder($board);
-        $file = "$folder/layout.js";
+        $file = "$folder/$file";
         return is_file($file) ? file_get_contents($file) : FALSE;
+    }
+    
+    /*
+        Ecriture d'un contenu de tableau de bord
+    */
+    private function writeBoardDataFile($board, $file, $content) {
+        $folder = $this->getBoardDataFolder($board);
+        $file = "$folder/$file";
+        if(!is_dir($folder)) mkdir($folder, 0777, true);
+        file_put_contents($file, $content);
+    }
+    
+    /*
+        Lecture du layout d'un tableau de bord
+    */
+    public function getBoardLayout($board) {
+        return $this->readBoardDataFile($board, "layout.json");
+    }
+    
+    /*
+        Ecriture du layout d'un tableau de bord
+    */
+    public function setBoardLayout($board, $json) {
+        $layout = json_decode($json);
+        // Calcul la valeur de mise à jour
+        $lastUpdate = $this->getBoardLastUpdate($board);
+        if($lastUpdate === FALSE) $lastUpdate = 1;
+        else $lastUpdate++;
+        $layout->lastUpdate = $lastUpdate;
+        // Enregistrement des modifications
+        $this->writeBoardDataFile($board, "layout.json", json_encode($layout));
+        $this->setBoardLastUpdate($board, $lastUpdate);
     }
     
     /*
         Lecture de la dernière mise à jour d'un tableau de bord
     */
-    public function getBoadLastUpdate($board) {
-        $folder = $this->getBoardDataFolder($board);
-        $file = "$folder/last-update.txt";
-        return is_file($file) ? file_get_contents($file) : FALSE;
+    public function getBoardLastUpdate($board) {
+        return $this->readBoardDataFile($board, "last-update.txt");
     }
     
+    /*
+        Ecriture de la dernière mise à jour d'un tableau de bord
+    */
+    public function setBoardLastUpdate($board, $lastUpdate) {
+        return $this->writeBoardDataFile($board, "last-update.txt", $lastUpdate);
+    }
+    
+    /*
+        Retourne la liste des modules disponibles
+    */
+    public function getModules() {
+        if($this->_Modules === NULL) {
+            $this->_Modules = array();
+            $dir = opendir('modules');
+            while ($cnt = readdir($dir)) {
+                if ($cnt == '.' || $cnt == '..') {
+                    continue;
+                }
+                $configFile = "modules/$cnt/module.json";
+                if (!is_file($configFile)) {
+                    continue;
+                }
+                $json_data = file_get_contents($configFile);
+                $config = json_decode($json_data, true);
+                $config["folder"] = "modules/$cnt";
+                $config["config"] = file_exists("modules/$cnt/config.php") === true;
+                $this->_Modules[$config['code']] = $config;
+            }
+            closedir($dir);            
+        }
+        return $this->_Modules;
+    }
 }
 
 class makerBoardX{    

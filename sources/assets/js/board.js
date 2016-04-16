@@ -10,7 +10,6 @@
             options = command;
             command = "enable";
         }
-        options = $.extend({}, $.fn.board.defauls, options);
 
         // Application du module
         return this.each(function () {
@@ -31,6 +30,9 @@
                 case "resize":
                     resizeCommand.call($this, options);
                     break;
+                case "module.add":
+                    moduleAddCommand.call($this, options);
+                    break;
             }
         });
     };
@@ -41,7 +43,8 @@
         editable: false,
         refresh: 5 * 1000,
         board: function(){ return $(this).data("board"); },
-        error: function(message){ if(console) console.log(message); }
+        error: function(message){ if(console) console.log(message); },
+        moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"></div>'
     };
 
     // Activation d'un board
@@ -51,6 +54,7 @@
         if ($this.data("board-settings"))
             return false;
         // Enregistrement des paramètres
+        settings = $.extend({}, $.fn.board.defauls, settings);
         $this.data("board-settings", settings);
         // Activation du rafraichissement automatique
         if (settings.refresh !== false && settings.refresh > 0) {
@@ -132,8 +136,11 @@
                     var smodule = $(".module[data-id='"+id+"']", $this);
                     if(smodule.length==0){
                         // Le module n'existe pas on le créé
-                        smodule = $('<div class="module"></div>');
-                        $this.append(smodule);
+                        smodule = moduleAddCommand.call($this, {
+                            "id": id,
+                            "module": mod.module,
+                            "title": mod.title 
+                        });
                     }
                     // Modification des modules
                     smodule.css({
@@ -159,6 +166,9 @@
             if($.isFunction(options.done)) {
                 options.done.call($this, data);
             }
+            
+            // Evénément 'board.loaded'
+            $this.trigger('board.loaded');
         }, "json");
     };
     
@@ -184,7 +194,8 @@
                 w: $module.width(),
                 h: $module.height(),
                 id: $module.data("id"),
-                module: $module.data("module")
+                module: $module.data("module"),
+                title: $module.data("title")
             });
         });
         // Transmission des données
@@ -204,8 +215,8 @@
         }, options);
         
         // Calcul des ratios
-        var ratioX = $this.width() / options.width;
-        var ratioY = $this.height() / options.height;
+        var ratioX = options.width / $this.width();
+        var ratioY = options.height / $this.height();
         // Repositionnement des modules
         $(".module", $this).each(function(){
             var $module = $(this);
@@ -222,6 +233,61 @@
             .width(options.width)
             .height(options.height)
             ;
+            
+        // Evénément 'board.resized'
+        $this.trigger('board.resized');
+    };
+    
+    // Insertion d'un module 
+    var moduleAddCommand = function(options) {
+        var $this = $(this);
+        var settings = $this.data("board-settings");
+        if(!settings) return false;
+        
+        options = $.extend({
+            "id": 0,
+            "module": "",
+            "title": "",
+            "done": function($board, $module){},
+            "save": true
+        }, options);
+        
+        // Calcul le prochain id si nécessaire
+        if(options.id === 0) {
+            var lastId = 0;
+            $(".module", $this).each(function(){
+                var mid = parseInt($(this).data("id"));
+                if(!isNaN(mid)) lastId = Math.max(mid, lastId);
+            });
+            options.id = lastId + 1;            
+        }
+        
+        // Création du module
+        $module = $( parseTemplate(settings.moduleTemplate, options) );
+        $module.attr("data-id", options.id);
+        $module.attr("data-module", options.module);
+        $module.attr("data-title", options.title != "" ? options.title : options.module);
+        
+        // Insertion 
+        $this.append($module);
+        
+        // Activation du mode édition
+        if(settings.editable) {
+            setModuleEditor($this, $module);
+        }
+        
+        // Evénément 'done'
+        if($.isFunction(options.done)) {
+            options.done($this, $module);
+        }
+        
+        // Evénément 'module.added'
+        $this.trigger('module.added', $module);
+        
+        // Enregistrement du layout
+        if(options.save === true)
+            saveCommand.call($this);
+        return $module;
     };
     
     // Définition du mode éditeur
@@ -249,6 +315,8 @@
         // Activation du dimensionnement
         $module.resizable({
             containment: "parent",
+            minWidth: 32,
+            minHeight: 32,
             stop: function () {
                 saveCommand.call($board);
             }
@@ -269,6 +337,14 @@
             return settings.board;
         }
         return $($board).data("board");
+    };
+    
+    // Traitement des templates
+    var parseTemplate = function(template, data){
+        return template.replace(/\{\{[\w._-]+\}\}/gi, function(tag){
+            var n = tag.substring(2, tag.length-2);
+            return (n in data) ? data[n] : "";
+        });
     };
     
 })(jQuery);

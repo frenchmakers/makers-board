@@ -13,7 +13,6 @@
     position: absolute;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 10px;
-    font-weight: bold;
     width: 80px;
     height: 80px;
     top:0;
@@ -25,7 +24,13 @@
     cursor: move;
 }
 
-.module .ui-resizable-se {
+.board-editor .module .title{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.board-editor .module .ui-resizable-se {
     position: absolute;
     z-index: 1;
     width: 20px;
@@ -39,7 +44,7 @@
     z-index: 20;
 }
 
-.module .handle-close{
+.board-editor .module .handle-close{
     position: absolute;
     width: 16px;
     height: 16px;
@@ -55,7 +60,7 @@
     vertical-align: middle;
     font-size: 12px;
 }
-.module .handle-close:hover{
+.board-editor .module .handle-close:hover{
     text-decoration: none;
     color: black;
 }
