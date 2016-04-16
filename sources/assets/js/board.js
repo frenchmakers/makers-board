@@ -22,8 +22,14 @@
                 case "refresh":
                     refreshCommand.call($this, options);
                     break;
+                case "load":
+                    loadCommand.call($this, options);
+                    break;
                 case "save":
                     saveCommand.call($this, options);
+                    break;
+                case "resize":
+                    resizeCommand.call($this, options);
                     break;
             }
         });
@@ -33,7 +39,9 @@
     $.fn.board.defauls = {
         api: "api.php",
         editable: false,
-        refresh: 5 * 1000
+        refresh: 5 * 1000,
+        board: function(){ return $(this).data("board"); },
+        error: function(message){ if(console) console.log(message); }
     };
 
     // Activation d'un board
@@ -61,9 +69,24 @@
         var $this = $(this);
         var settings = $this.data("board-settings");
         if(!settings) return;
+        // Provoque un ping
+        var boardName = getBoardName($this, settings);
+        $.get(settings.api + "/board/"+boardName+"/ping", null, function (data) {
+            // Si la valeur de dernière mise à jour à changée alors on charge le tableau
+            if(data!=$this.data("lastUpdate")) {
+                $this.data("lastUpdate", data);
+                loadCommand.call($this, options);
+            }
+        });
+    };
+    
+    // Chargement d'un board
+    var loadCommand = function (options) {
+        var $this = $(this);
+        var settings = $this.data("board-settings");
+        if(!settings) return;
         options = $.extend({
-            "sendBoardSize": false,
-            "updateBoardSize": false
+            "sendBoardSize": false
         }, options);
         // 
         var sdata = {
@@ -73,12 +96,18 @@
             sdata.dw = $this.width();
             sdata.dh = $this.height();
         }
-        $.get(settings.api + "/board", sdata, function (data) {
-            // Recalcul la taille de l'écran ?
-            if(options.updateBoardSize) {
-                var bw = $this.width() / data.size.width;
-                var bh = data.size.height * bw;
-                $this.height(bh);                
+        var boardName = getBoardName($this, settings);
+        $.get(settings.api + "/board/" + boardName, sdata, function (data) {
+            // Erreur ?
+            if(data.status && data.status=="error") {
+                if($.isFunction(settings.error)) {
+                    settings.error.call($this, data.message);
+                }
+                return;
+            }
+            // Enregistre la dernière mise à jour
+            if(data.lastUpdate){
+                $this.data("lastUpdate", data.lastUpdate);
             }
             // Calcul des ratios
             var ratioX = $this.width() / data.size.width;
@@ -126,8 +155,11 @@
                     }
                 }
             }
+            // Evénément 'done' ?
+            if($.isFunction(options.done)) {
+                options.done.call($this, data);
+            }
         }, "json");
-
     };
     
     // Enregistrement d'un board
@@ -156,7 +188,40 @@
             });
         });
         // Transmission des données
-        $.post(settings.api+"/board", layout);
+        var boardName = getBoardName($this, settings);
+        $.post(settings.api + "/board/" + boardName, JSON.stringify(layout));
+    };
+    
+    // Recalcul les positions d'après une nouvelle dimension du board 
+    var resizeCommand = function(options) {
+        var $this = $(this);
+        var settings = $this.data("board-settings");
+        if(!settings) return;
+        
+        options = $.extend({
+            'width': $this.width(),
+            'height': $this.height()
+        }, options);
+        
+        // Calcul des ratios
+        var ratioX = $this.width() / options.width;
+        var ratioY = $this.height() / options.height;
+        // Repositionnement des modules
+        $(".module", $this).each(function(){
+            var $module = $(this);
+            var p = $module.position();
+            $module.css({
+                left: (p.left * ratioX) + "px",
+                top: (p.top * ratioY) + "px"
+            })
+            .width(Math.max(12, $module.width() * ratioX))
+            .height(Math.max(12, $module.height() * ratioY));    
+        });
+        // Redimensionne le board
+        $this
+            .width(options.width)
+            .height(options.height)
+            ;
     };
     
     // Définition du mode éditeur
@@ -193,6 +258,17 @@
         $(".handle-close", $module).click(function(e){
             alert("Suppression du module");
         });
+    };
+    
+    // Extraction du nom du tableau de bord
+    var getBoardName = function($board, settings){
+        if(settings && settings.board){
+            if($.isFunction(settings.board)){
+                return settings.board.call($board);
+            }
+            return settings.board;
+        }
+        return $($board).data("board");
     };
     
 })(jQuery);

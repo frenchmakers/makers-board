@@ -1,7 +1,34 @@
 <?php 
 
 class makerBoard {
+    /*
+        Calcul le dossier de données d'un tableau de board
+    */
+    private function getBoardDataFolder($board) {
+        return __DIR__."/datas/$board";
+    }
+    
+    /*
+        Lecture de la configuration d'un tableau de bord
+    */
+    public function getBoadLayout($board) {
+        $folder = $this->getBoardDataFolder($board);
+        $file = "$folder/layout.js";
+        return is_file($file) ? file_get_contents($file) : FALSE;
+    }
+    
+    /*
+        Lecture de la dernière mise à jour d'un tableau de bord
+    */
+    public function getBoadLastUpdate($board) {
+        $folder = $this->getBoardDataFolder($board);
+        $file = "$folder/last-update.txt";
+        return is_file($file) ? file_get_contents($file) : FALSE;
+    }
+    
+}
 
+class makerBoardX{    
     /*
         Lecture de la dernière actualisation du tableau de bord
     */

@@ -1,3 +1,13 @@
+<?php
+// Initialisation
+include 'makerBoard.class.php';
+$makerBoard = new makerBoard();
+
+// Extraction du nom du tableau de bord
+$board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -14,7 +24,7 @@
 <body>
     <div class="layout">
         <h1></h1>
-        <div class="board">
+        <div class="board" data-board="<?php echo($board) ?>">
         </div>
     </div>
 

@@ -3,17 +3,9 @@
 include 'makerBoard.class.php';
 $makerBoard = new makerBoard();
 
-// Traitement des commandes
-$message = "";
-$command = isset($_REQUEST["command"]) ? $_REQUEST["command"] : "";
-if ($command === "refresh-dashboard") {
-    $makerBoard->setLastRefresh();
-    $message = "L'ordre de rafraichissement est lancé.";
-}
-
 // Chargement des modules
-$makerBoard->init();
-$board = $makerBoard->readBoardConfig();
+//$makerBoard->init();
+//$board = $makerBoard->readBoardConfig();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -32,16 +24,6 @@ $board = $makerBoard->readBoardConfig();
         <div class="container">
             <h1>Configuration Maker Board</h1>
             <div class="messages">
-            <?php
-            if ($message !== "") {
-                ?>
-                <div class="alert alert-info alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
-                    <?php echo($message); ?>
-                </div>
-                <?php
-            }
-            ?>
             </div>
             
             <h2>Informations générales</h2>
@@ -49,7 +31,7 @@ $board = $makerBoard->readBoardConfig();
                 <div class="col-md-8">
                     <div class="form-group">
                         <label>Tableau</label>
-                        <select class="form-control">
+                        <select id="current-board" class="form-control">
                             <option value="default">default: Makers board</option>
                         </select>
                         <label>Titre du tableau</label>
@@ -63,7 +45,6 @@ $board = $makerBoard->readBoardConfig();
                         </div>
                         <div class="panel-body">
                             <ul>
-                                <li><a href="config.php?command=refresh-dashboard">Actualiser le tableau de bord</a></li>
                             </ul>
                         </div>
                     </div>
@@ -86,18 +67,9 @@ $board = $makerBoard->readBoardConfig();
                             <option value="current">Taille actuelle</option>
                         </select>
                         <label>Taille actuelle de l'affichage</label>
-                        <span id="current-screen-size" class="form-control-static">1234x789</span>
+                        <span id="current-screen-size" class="form-control-static"></span>
                     </div>
                     <div class="board-editor">
-                        <div class="module" data-id="1" data-module="module1">
-                            <div class="module-title">Titre du module</div>
-                        </div>
-                        <div class="module" data-id="2" data-module="module2">
-                            <div class="module-title">Titre du module</div>
-                        </div>
-                        <div class="module" data-id="3" data-module="module1">
-                            <div class="module-title">Titre du module</div>
-                        </div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -107,11 +79,6 @@ $board = $makerBoard->readBoardConfig();
                         </div>
                         <div class="panel-body">
                             <ul>
-                                <?php
-                                foreach ($makerBoard->configs as $module => $config) {
-                                    echo("<li class='module' data-module='{$config['code']}' data-w='{$config['w']}' data-h='{$config['h']}'><a href='#'>{$config['name']}</a></li>");
-                                }
-                                ?>
                             </ul>
                         </div>
                     </div>
@@ -141,37 +108,6 @@ $board = $makerBoard->readBoardConfig();
         <script src="assets/js/bootstrap.min.js"></script>
         <script src="assets/js/jquery-ui.min.js" type="text/javascript"></script>
         <script src="assets/js/board.js"></script>
-        <script type="text/javascript">
-            (function($){
-                // Gestion de la taille d'écran
-                var sw = $("body").width();
-                var sh = $("body").height();
-                $("#current-screen-size").attr({
-                    "data-width": sw,
-                    "data-height": sh,
-                }).text(sw+"x"+sh);
-                $("#screen-size").change(function(){
-                    var $opt = $("option:selected", this);
-                    if($opt.val()!="current"){
-                        //console.log($(".board-editor").width(), $(".board-editor").height());
-                        //console.log($opt.data("w"), $opt.data("h"));
-                        var bw = $(".board-editor").width() / $opt.data("w");
-                        var bh = $opt.data("h") * bw;
-                        //console.log(bw, bh);
-                         $(".board-editor").height(bh);
-                         $(".board-editor").board("save");
-                    }else{
-                        
-                    } 
-                });
-                
-                // Activation du board en mode edition
-                $(".board-editor").board({
-                    refresh: false,
-                    editable: true
-                }).board("refresh", {updateBoardSize: true});
-                
-            })(jQuery);
-        </script>
+        <script src="assets/js/board-editor.js"></script>
     </body>
 </html>
