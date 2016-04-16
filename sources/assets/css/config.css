@@ -1,64 +1,6 @@
 .content {
   color: white;
 }
-.gridster ul {
-    min-height: 120px;
-}
-.gridster .gs-w {
-  background: #61A9CF;
-  cursor: move;
-  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-}
-.gridster .player {
-  -webkit-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
-  background: #BBB;
-}
-.gridster .gs-w.try {
-  /*background-image: url(../img/sprite.png);*/
-  background-repeat: no-repeat;
-  background-position: 37px -169px;
-}
-.gridster .preview-holder {
-  border: none !important;
-  border-radius: 0 !important;
-  background: red !important;
-}
-.gridster ul {
-  background-color: #EFEFEF;
-  list-style-type: none;
-}
-.gridster li {
-  font-size: 1em;
-  font-weight: bold;
-  text-align: center;
-  line-height: 100%;
-  list-style: none;
-}
-.gridster-box {
-  position: relative;
-  text-align: left;
-  background-color: white;
-  width: 100%;
-  height: 100%;
-  padding:8px;
-}
-
-.handle-close{
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    right:8px;
-    top:8px;
-    color:gray;
-    z-index: 100;
-    text-decoration:none;
-}
-.handle-close:hover{
-    text-decoration:none;
-    color: black;
-}
 
 .board-editor{
     background: #61A9CF;
@@ -96,3 +38,25 @@
     cursor: se-resize;
     z-index: 20;
 }
+
+.module .handle-close{
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right:1px;
+    top:1px;
+    color:gray;
+    z-index: 100;
+    text-decoration: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12px;
+}
+.module .handle-close:hover{
+    text-decoration: none;
+    color: black;
+}
+

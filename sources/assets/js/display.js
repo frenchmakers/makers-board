@@ -188,6 +188,11 @@
                 saveCommand.call($display);
             }
         });
+        // Activation de la fermeture
+        $module.append($("<div class='handle-close'>&times;</div>"));
+        $(".handle-close", $module).click(function(e){
+            alert("Suppression du module");
+        });
     };
     
 })(jQuery);
