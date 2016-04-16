@@ -38,7 +38,7 @@ class makerBoard {
     */
     public function readBoardConfig() {
         $file = __DIR__."/datas/board.json";
-        $configData = file_get_contents($file);
+        $configData = is_file($file) ? file_get_contents($file) : FALSE;
         if ($configData !== FALSE) {
             $config = json_decode($configData, TRUE);
         } else {

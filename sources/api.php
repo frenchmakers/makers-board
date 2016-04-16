@@ -5,18 +5,18 @@ $path = trim(isset($_SERVER["PATH_INFO"]) ? $_SERVER["PATH_INFO"] : "", " /");
 
 $response = FALSE;
 
-// Commande display
-if($path == "display"){
+// Commande board
+if($path == "board"){
     if($method == "get"){
         // Lecture du fichier de positionnement
-        if(file_exists("datas/display.json")){
-            $response = file_get_contents("datas/display.json");
+        if(file_exists("datas/board.json")){
+            $response = file_get_contents("datas/board.json");
         }else{
             $response = '{ "modules": [] }';    
         }        
     } else if($method == "post"){
-        // MAJ du layout du display
-        file_put_contents("datas/display.json", json_encode($_POST));
+        // MAJ du layout du board
+        file_put_contents("datas/board.json", json_encode($_POST));
         $response = TRUE;
     }
 }

@@ -26,10 +26,7 @@ $board = $makerBoard->readBoardConfig();
         
         <!-- Bootstrap -->
         <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="assets/css/config.css" rel="stylesheet" type="text/css"/>
-        <script src="assets/js/jquery-1.12.2.min.js"></script>
-        <script src="assets/js/bootstrap.min.js"></script>
-        <script src="assets/js/jquery-ui.min.js" type="text/javascript"></script>
+        <link href="assets/css/editor.css" rel="stylesheet" type="text/css"/>
     </head>
     <body>
         <div class="container">
@@ -47,27 +44,49 @@ $board = $makerBoard->readBoardConfig();
             ?>
             </div>
             
+            <h2>Informations générales</h2>
             <div class="row">
                 <div class="col-md-8">
-                    <h2>Informations générales</h2>
-                    <form action="config.php" action="post">
-                        <div class="form-group">
-                            <label>Titre général</label>
-                            <input type="text" name="title" class="form-control" value="<?php echo($makerBoard->title) ?>" />
-                            <label>Titre du tableau</label>
-                            <input type="text" name="boardTitle" class="form-control" value="<?php echo($board["title"]) ?>" />
+                    <div class="form-group">
+                        <label>Tableau</label>
+                        <select class="form-control">
+                            <option value="default">default: Makers board</option>
+                        </select>
+                        <label>Titre du tableau</label>
+                        <input type="text" name="boardTitle" class="form-control" value="Makers board" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">                        
+                            Commandes
                         </div>
-                    </form>            
-                    
-                    <h2>Organisation des modules</h2>
+                        <div class="panel-body">
+                            <ul>
+                                <li><a href="config.php?command=refresh-dashboard">Actualiser le tableau de bord</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2>Organisation des modules</h2>
+            <div class="row">
+                <div class="col-md-8">
                     <div class="form-inline">
                         <label>Ecran de référence</label>
                         <select id="screen-size" class="form-control">
+                            <option value="800x600" data-w="800" data-h="600">800x600</option>
                             <option value="1024x768" data-w="1024" data-h="768">1024x768</option>
+                            <option value="1280x768" data-w="1280" data-h="768">1280x768</option>
+                            <option value="1280x800" data-w="1280" data-h="800">1280x800</option>
+                            <option value="1360x768" data-w="1360" data-h="768">1360x768</option>
+                            <option value="1440x900" data-w="1440" data-h="900">1440x900</option>
+                            <option value="1600x900" data-w="1600" data-h="900">1600x900</option>
                             <option value="current">Taille actuelle</option>
                         </select>
                         <label>Taille actuelle de l'affichage</label>
-                        <span class="form-control-static">1234x789</span>
+                        <span id="current-screen-size" class="form-control-static">1234x789</span>
                     </div>
                     <div class="board-editor">
                         <div class="module" data-id="1" data-module="module1">
@@ -82,16 +101,6 @@ $board = $makerBoard->readBoardConfig();
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">                        
-                            Commandes
-                        </div>
-                        <div class="panel-body">
-                            <ul>
-                                <li><a href="config.php?command=refresh-dashboard">Actualiser le tableau de bord</a></li>
-                            </ul>
-                        </div>
-                    </div>
                     <div class="panel panel-default modules">
                         <div class="panel-heading">                        
                             Modules
@@ -106,28 +115,10 @@ $board = $makerBoard->readBoardConfig();
                             </ul>
                         </div>
                     </div>
-                    <div class="panel panel-default log">
-                        <div class="panel-heading">                        
-                            Log
-                        </div>
-                        <div class="panel-body">
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-        <div class="template-module hidden">
-            <div class="gridster-box" data-module="{{module}}">
-                <div class="module-title">{{title}}</div>
-                <div class="module-content"></div>
-                <a href="#" class="handle-close">&times;</a>
-            </div>            
-        </div>
-        <div class="template-separator hidden">
-            <div class="gridster-box separator">
-                <a href="#" class="handle-close">&times;</a>
-            </div>            
-        </div>
+        
         <div class="modal fade" id="configModal" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -144,12 +135,21 @@ $board = $makerBoard->readBoardConfig();
                 </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->        
-        <script src="assets/js/board-editor.js"></script>
-        <script src="assets/js/display.js"></script>
+        </div><!-- /.modal -->
+                
+        <script src="assets/js/jquery-1.12.2.min.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery-ui.min.js" type="text/javascript"></script>
+        <script src="assets/js/board.js"></script>
         <script type="text/javascript">
             (function($){
-                // Sélection de la taille d'écran
+                // Gestion de la taille d'écran
+                var sw = $("body").width();
+                var sh = $("body").height();
+                $("#current-screen-size").attr({
+                    "data-width": sw,
+                    "data-height": sh,
+                }).text(sw+"x"+sh);
                 $("#screen-size").change(function(){
                     var $opt = $("option:selected", this);
                     if($opt.val()!="current"){
@@ -159,15 +159,17 @@ $board = $makerBoard->readBoardConfig();
                         var bh = $opt.data("h") * bw;
                         //console.log(bw, bh);
                          $(".board-editor").height(bh);
-                         $(".board-editor").display("save");
+                         $(".board-editor").board("save");
+                    }else{
+                        
                     } 
                 });
                 
                 // Activation du board en mode edition
-                $(".board-editor").display({
+                $(".board-editor").board({
                     refresh: false,
                     editable: true
-                }).display("refresh", {updateBoardSize: true});
+                }).board("refresh", {updateBoardSize: true});
                 
             })(jQuery);
         </script>

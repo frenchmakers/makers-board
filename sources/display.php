@@ -1,5 +1,3 @@
-<?php 
-?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -10,7 +8,7 @@
 
     <title>Maker Board</title>
 
-    <link href="assets/css/display.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/board.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
@@ -35,25 +33,6 @@
                 refresh: 3*1000,
                 editable: false
             });
-            
-            var updateLayout = function(){
-                $.get("api.php/display", {_t:new Date().getTime()}, function(data){
-                    $.each(data.modules, function(idx, mod){
-                        //console.log(mod);
-                        $(".board .module:eq("+idx+")").css({
-                            left: (parseInt(mod.x)*1)+"px",
-                            top: (parseInt(mod.y)*1)+"px",
-                            width: mod.w+"px",
-                            height: mod.h+"px"
-                        });
-                    });
-                }, "json");
-            };
-            var timerUpdateLayout = function(){
-                updateLayout();
-                setTimeout(timerUpdateLayout, 1000);
-            };
-            //timerUpdateLayout();
         })(jQuery);
     </script>
 
