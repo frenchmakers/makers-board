@@ -3,13 +3,225 @@
  */
 (function ($) {
     
-    // Gestion de la taille d'écran
-    var sw = $("body").width();
-    var sh = $("body").height();
-    $("#current-screen-size").attr({
-        "data-width": sw,
-        "data-height": sh,
-    }).text(sw + "x" + sh);
+    // Définition de l'éditeur de board
+    $.fn.boardEditor = function (command, options) {
+        // Validation des options
+        if (!command || $.isPlainObject(command)) {
+            options = command;
+            command = "enable";
+        }
+        
+        // Application du module
+        return this.each(function () {
+            var $this = $(this);
+            switch (command) {
+                case "enable":
+                    $.fn.boardEditor.commands.enable.call($this, options);
+                    break;
+                case "load":
+                    $.fn.boardEditor.commands.load.call($this, options);
+                    break;
+                case "resize":
+                    $.fn.boardEditor.commands.resize.call($this, options);
+                    break;
+                default:
+                    // Par défaut on redirige sur le module board()
+                    $this.board(command, options);
+                    break;
+            }
+        });
+    };
+    
+    // Valeurs par défaut
+    $.fn.boardEditor.defauls = {
+        'enable': {}
+    };
+    
+    // Commandes
+    $.fn.boardEditor.commands = {
+        // Activation de l'éditeur
+        'enable' : function(settings) {
+            var $this = $(this);
+            // Si le board est déjà défini on passe
+            if ($this.data("board-editor-settings"))
+                return false;
+            // Enregistrement des paramètres
+            settings = $.extend({}, $.fn.boardEditor.defauls.enable, settings);
+            $this.data("board-editor-settings", settings);
+            // Activation du board de base
+            $this.board("enable", {
+                refresh: false,
+                editable: false,
+                board: function () { return $("#current-board").val(); },
+                moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"><div class="title">{{title}}</div></div>'
+            });
+            // Activation du mode edition
+            setEditor($this);
+        },
+        // Chargement de l'éditeur
+        'load' : function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-editor-settings");
+            if(!settings) return;
+            // Provoque un appel au board
+            $this.board('load',{
+                done:function(data) {
+                    $this.boardEditor('resize',{
+                        'width': data.size.width,
+                        'height': data.size.height                        
+                    });
+                    setEditor($this);
+                }
+            });
+        },
+        // Enregistrement du layout
+        'save' : function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-editor-settings");
+            if(!settings) return;
+            
+            // Calcul les valeurs
+            var currentSize = {
+                'width': $this.attr("data-screen-width") ? $this.attr("data-screen-width") : $this.width(),
+                'height': $this.attr("data-screen-height") ? $this.attr("data-screen-height") : $this.height()
+            };
+            var ratioX = currentSize.width / $this.width();
+            var ratioY = currentSize.height / $this.height();
+            
+            // Extraction des informations de layout
+            var layout = {
+                size: currentSize,
+                modules: []
+            };
+            $(".module", $this).each(function(){
+                var $module = $(this);
+                var p = $module.position();
+                layout.modules.push({
+                    x: p.left * ratioX,
+                    y: p.top * ratioY,
+                    w: $module.width() * ratioX,
+                    h: $module.height() * ratioY,
+                    id: $module.data("id"),
+                    module: $module.data("module"),
+                    title: $module.data("title")
+                });
+            });
+            
+            // Transmission des données
+            //var boardName = getBoardName($this, settings);
+            //$.post(settings.api + "/board/" + boardName, JSON.stringify(layout));
+            
+        },
+        // Provoque le redimensionnement de l'éditeur
+        'resize': function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-editor-settings");
+            if(!settings) return;
+            
+            // Extraction des valeurs en cours
+            var currentSize = {
+                'width': $this.attr("data-screen-width") ? $this.attr("data-screen-width") : $this.width(),
+                'height': $this.attr("data-screen-height") ? $this.attr("data-screen-height") : $this.height()
+            };
+            
+            // Valide les options
+            options = $.extend({}, {
+                'width': currentSize.width,
+                'height': currentSize.height
+            }, options);
+            
+            // Calcul des ratios
+            var tw = $this.width();
+            var th = $this.height();
+            var ratioX = options.width / currentSize.width;
+            var ratioY = options.height / currentSize.height;
+            
+            // Redimensionne le board
+            $this.attr({
+                "data-screen-width": options.width,
+                "data-screen-height": options.height
+            });
+            $this.height(options.height * (tw / options.width));
+            
+            var size = $("#screen-size option[data-w=" + options.width + "][data-h=" + options.height + "]").val();
+            if(!size || size=="") size = "current";
+            $("#screen-size").val(size);
+                
+            //$("#current-screen-size").attr({
+            //    "data-width": options.width,
+            //    "data-height": options.height,
+            //}).text(options.width + "x" + options.height);
+            
+            // Repositionnement des modules
+            $(".module", $this).each(function(){
+                var $module = $(this);
+                var p = $module.position();
+                $module.css({
+                    //left: (p.left * ratioX) + "px",
+                    top: (p.top * ratioY) + "px"
+                })
+                //.width(Math.max(12, $module.width() * ratioX))
+                .height(Math.max(12, $module.height() * ratioY));    
+            });
+            
+            // Evénément 'board.resized'
+            $this.trigger('board.resized');            
+        }
+    };
+    
+    // Définition du mode éditeur
+    var setEditor = function($board){
+        $(".module", $board).each(function(){
+            setModuleEditor($board, $(this));
+        });
+    };
+    var setModuleEditor = function($board, $module){
+        // Si le module est déjà défini on passe
+        if($module.data("module-settings")) return false;
+        // Calcul des informations d'un module
+        var msettings = {
+        };
+        $module.data("module-settings", msettings);
+        // Activation du déplacement
+        $module.draggable({
+            containment: "parent",
+            snap: true,
+            snapMode: 'outer',
+            stop: function () {
+                //saveCommand.call($board);
+            }
+        });
+        // Activation du dimensionnement
+        $module.resizable({
+            containment: "parent",
+            minWidth: 32,
+            minHeight: 32,
+            stop: function () {
+                //saveCommand.call($board);
+            }
+        });
+        // Activation de la fermeture
+        $module.append($("<div class='handle-close'>&times;</div>"));
+        $(".handle-close", $module).click(function(e){
+            if(confirm("Etes-vous sûrs de vouloir supprimer ce module ?")){
+                //moduleDeleteCommand.call($board, $module);
+            }
+        });
+    };
+
+    // Initialisation du board
+    $(".board-editor").boardEditor();
+
+    // Initialisation de la taille d'écran
+    $(".board-editor").boardEditor('resize', {
+        'width': 1280,
+        'height': 800
+    });
+    
+    // Activation du board en mode edition
+    $(".board-editor").boardEditor('load');
+    
+    // Gestion du sélecteur de la taille d'écran
     $("#screen-size").change(function () {
         var $opt = $("option:selected", this);
         if ($opt.val() != "current") {
@@ -19,38 +231,14 @@
             sw = $("#current-screen-size").data("width");
             sh = $("#current-screen-size").data("height");
         }
-        // Recalcul la hauteur de la zone d'édition
-        //console.log("sw: " + sw, "sh: " + sh);
-        var bw = $(".board-editor").width();
-        var ratio = bw / sw;
-        var bh = sh * ratio;
-        //console.log("bw: " + bw, "ratio: " + ratio, "bh: " + bh);
-        $(".board-editor").board("resize",{
-            'height': bh
+        $(".board-editor")
+            .boardEditor("resize",{
+            'width': sw,
+            'height': sh
         });
-        $(".board-editor").board("save");
     });
-
-    // Activation du board en mode edition
-    $(".board-editor").board({
-        refresh: false,
-        editable: true,
-        board: function () { return $("#current-board").val(); },
-        moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"><div class="title">{{title}}</div></div>'
-    }).board("load", {
-        done: function (data) {
-            var $this = this;
-            var bw = $this.width() / data.size.width;
-            var bh = data.size.height * bw;
-            //$this.height(bh);
-            var size = $("#screen-size option[data-w=" + data.size.width + "][data-h=" + data.size.height + "]").val();
-            if(!size || size=="") size = "current";
-            $("#screen-size").val(size);
-            $(".board-editor").board("resize",{
-                'height': bh
-            });
-        }
-    });
+    
+    return;
     
     // Activation des liens d'ajout des modules
     $(".add-module-command").click(function(e){

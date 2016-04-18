@@ -27,11 +27,11 @@
                 case "save":
                     saveCommand.call($this, options);
                     break;
-                case "resize":
-                    resizeCommand.call($this, options);
-                    break;
                 case "module.add":
                     moduleAddCommand.call($this, options);
+                    break;
+                case "module.delete":
+                    moduleDeleteCommand.call($this, options);
                     break;
             }
         });
@@ -113,6 +113,11 @@
             if(data.lastUpdate){
                 $this.data("lastUpdate", data.lastUpdate);
             }
+            // Enregistre la taille de référence
+            $this.attr({
+                "data-screen-width": options.width,
+                "data-screen-height": options.height
+            });
             // Calcul des ratios
             var ratioX = $this.width() / data.size.width;
             var ratioY = $this.height() / data.size.height;
@@ -180,8 +185,8 @@
         // Extraction des informations de layout
         var layout = {
             size: {
-                width: $this.width(),
-                height: $this.height()
+                width: $this.data("screen-width"),
+                height: $this.data("screen-height")
             },
             modules: []
         };
@@ -201,41 +206,6 @@
         // Transmission des données
         var boardName = getBoardName($this, settings);
         $.post(settings.api + "/board/" + boardName, JSON.stringify(layout));
-    };
-    
-    // Recalcul les positions d'après une nouvelle dimension du board 
-    var resizeCommand = function(options) {
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return;
-        
-        options = $.extend({
-            'width': $this.width(),
-            'height': $this.height()
-        }, options);
-        
-        // Calcul des ratios
-        var ratioX = options.width / $this.width();
-        var ratioY = options.height / $this.height();
-        // Repositionnement des modules
-        $(".module", $this).each(function(){
-            var $module = $(this);
-            var p = $module.position();
-            $module.css({
-                left: (p.left * ratioX) + "px",
-                top: (p.top * ratioY) + "px"
-            })
-            .width(Math.max(12, $module.width() * ratioX))
-            .height(Math.max(12, $module.height() * ratioY));    
-        });
-        // Redimensionne le board
-        $this
-            .width(options.width)
-            .height(options.height)
-            ;
-            
-        // Evénément 'board.resized'
-        $this.trigger('board.resized');
     };
     
     // Insertion d'un module 
@@ -290,6 +260,46 @@
         return $module;
     };
     
+    // Suppression d'un module 
+    var moduleDeleteCommand = function(options) {
+        var $this = $(this);
+        var settings = $this.data("board-settings");
+        if(!settings) return false;
+        
+        // Construction des options
+        if(!($.isArray(options) || $.isPlainObject(options))){
+            options = {
+                "module": options
+            };
+        }
+        options = $.extend({
+            "done": function($board, $module){},
+            "save": true
+        }, options);
+        
+        // Extraction du module
+        var $module = options.module;
+        if(!($module instanceof jQuery)){
+            $module = $(".module[data-id='"+module+"']", $this);  
+        }
+        if($module.length==0) return;
+        
+        // Supprime le module
+        $module.remove();
+        
+        // Evénément 'done'
+        if($.isFunction(options.done)) {
+            options.done($this, $module);
+        }
+        
+        // Evénément 'module.deleted'
+        $this.trigger('module.deleted', $module);
+        
+        // Enregistrement du layout
+        if(options.save === true)
+            saveCommand.call($this);
+    };
+    
     // Définition du mode éditeur
     var setEditor = function($this){
         $(".module", $this).each(function(){
@@ -324,7 +334,9 @@
         // Activation de la fermeture
         $module.append($("<div class='handle-close'>&times;</div>"));
         $(".handle-close", $module).click(function(e){
-            alert("Suppression du module");
+            if(confirm("Etes-vous sûrs de vouloir supprimer ce module ?")){
+                moduleDeleteCommand.call($board, $module);
+            }
         });
     };
     
