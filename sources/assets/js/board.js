@@ -16,328 +16,314 @@
             var $this = $(this);
             switch (command) {
                 case "enable":
-                    enableCommand.call($this, options);
+                    $.fn.board.commands.enable.call($this, options);
                     break;
                 case "refresh":
-                    refreshCommand.call($this, options);
+                    $.fn.board.commands.refresh.call($this, options);
                     break;
                 case "load":
-                    loadCommand.call($this, options);
-                    break;
-                case "save":
-                    saveCommand.call($this, options);
+                    $.fn.board.commands.load.call($this, options);
                     break;
                 case "module.add":
-                    moduleAddCommand.call($this, options);
+                    $.fn.board.commands.moduleAdd.call($this, options);
                     break;
                 case "module.delete":
-                    moduleDeleteCommand.call($this, options);
+                    $.fn.board.commands.moduleDelete.call($this, options);
+                    break;
+                case "api":
+                    $.fn.board.commands.api.call($this, options);
                     break;
             }
         });
     };
 
     // Valeurs par défaut
-    $.fn.board.defauls = {
-        api: "api.php",
-        editable: false,
-        refresh: 5 * 1000,
-        board: function(){ return $(this).data("board"); },
-        error: function(message){ if(console) console.log(message); },
-        moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"></div>'
-    };
-
-    // Activation d'un board
-    var enableCommand = function (settings) {
-        var $this = $(this);
-        // Si le board est déjà défini on passe
-        if ($this.data("board-settings"))
-            return false;
-        // Enregistrement des paramètres
-        settings = $.extend({}, $.fn.board.defauls, settings);
-        $this.data("board-settings", settings);
-        // Activation du rafraichissement automatique
-        if (settings.refresh !== false && settings.refresh > 0) {
-            refreshCommand.call($this);
-            setInterval(function () {
-                refreshCommand.call($this);
-            }, settings.refresh);
+    $.fn.board.defaults = {
+        'enable': {
+            api: "api.php",
+            editable: false,
+            refresh: 5 * 1000,
+            board: function(){ return $(this).data("board"); },
+            error: function(message){ if(console) console.log(message); },
+            moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"></div>',
+            moduleAdded: function($module){ },
+            moduleDeleted: function($module){ }
+        },
+        'api': {
+            method: "GET",
+            data: null,
+            path: "/",
+            callType: "",
+            dataType: "json",
+            beforeSend: null,
+            done: null,
+            fail: null,
+            always: null
         }
-        // Activation du mode edition
-        if(settings.editable)
-            setEditor($this);
-    };
-
-    // Actualisation d'un board
-    var refreshCommand = function (options) {
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return;
-        // Provoque un ping
-        var boardName = getBoardName($this, settings);
-        $.get(settings.api + "/board/"+boardName+"/ping", null, function (data) {
-            // Si la valeur de dernière mise à jour à changée alors on charge le tableau
-            if(data!=$this.data("lastUpdate")) {
-                $this.data("lastUpdate", data);
-                loadCommand.call($this, options);
-            }
-        });
     };
     
-    // Chargement d'un board
-    var loadCommand = function (options) {
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return;
-        options = $.extend({
-            "sendBoardSize": false
-        }, options);
-        // 
-        var sdata = {
-            _t: new Date().getTime()
-        };
-        if(options.sendBoardSize) {
-            sdata.dw = $this.width();
-            sdata.dh = $this.height();
-        }
-        var boardName = getBoardName($this, settings);
-        $.get(settings.api + "/board/" + boardName, sdata, function (data) {
-            // Erreur ?
-            if(data.status && data.status=="error") {
-                if($.isFunction(settings.error)) {
-                    settings.error.call($this, data.message);
-                }
-                return;
+    // Commandes
+    $.fn.board.commands = {
+        // Activation d'un board
+        'enable': function (settings) {
+            var $this = $(this);
+            // Si le board est déjà défini on passe
+            if ($this.data("board-settings"))
+                return false;
+            // Enregistrement des paramètres
+            settings = $.extend({}, $.fn.board.defaults.enable, settings);
+            $this.data("board-settings", settings);
+            // Activation du rafraichissement automatique
+            if (settings.refresh !== false && settings.refresh > 0) {
+                $.fn.board.commands.refresh.call($this);
+                setInterval(function () {
+                    $.fn.board.commands.refresh.call($this);
+                }, settings.refresh);
             }
-            // Enregistre la dernière mise à jour
-            if(data.lastUpdate){
-                $this.data("lastUpdate", data.lastUpdate);
-            }
-            // Enregistre la taille de référence
-            $this.attr({
-                "data-screen-width": options.width,
-                "data-screen-height": options.height
-            });
-            // Calcul des ratios
-            var ratioX = $this.width() / data.size.width;
-            var ratioY = $this.height() / data.size.height;
-            // Récupération des modules actuellement affichés
-            var cModules = {};
-            $(".module", $this).each(function(){
-                var $module = $(this);
-                var id = $module.data("id");
-                // Enregistre le module ou le supprime
-                if(id && id!==""){
-                    cModules[id] = false;
-                }else{
-                    $module.remove();
-                }
-            });
-            // Traitement de chaque module recu
-            $.each(data.modules, function(idx, mod){
-                var id = mod.id;
-                if(id && id!=="") {
-                    // Recherche un module existant
-                    var smodule = $(".module[data-id='"+id+"']", $this);
-                    if(smodule.length==0){
-                        // Le module n'existe pas on le créé
-                        smodule = moduleAddCommand.call($this, {
-                            "id": id,
-                            "module": mod.module,
-                            "title": mod.title 
-                        });
-                    }
-                    // Modification des modules
-                    smodule.css({
-                        left: (mod.x * ratioX) + "px",
-                        top: (mod.y * ratioY) + "px"
-                    }).attr({
-                        "data-module": mod.module
-                    }).width(Math.max(12, mod.w * ratioX))
-                    .height(Math.max(12, mod.h * ratioY));
-                    // Marque le module comme défini
-                    cModules[id] = true;
-                }
-            });
-            // Supprime tous les modules qui n'ont pas été traités
-            for (var key in cModules) {
-                if (cModules.hasOwnProperty(key)) {
-                    if(cModules[key]===false){
-                        $(".module[data-id='"+key+"']", $this).remove();
+        },
+        // Actualisation d'un board
+        'refresh': function (options) {
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return;
+            // Provoque un ping
+            $this.board("api",{
+                callType: "board",
+                path: "/ping",
+                dataType: "text",
+                data: {
+                    _t: new Date().getTime()
+                },
+                done: function(data){
+                    // Si la valeur de dernière mise à jour à changée alors on charge le tableau
+                    if(data!=$this.data("lastUpdate")) {
+                        $this.data("lastUpdate", data);
+                        $.fn.board.commands.load.call($this, options);
                     }
                 }
+            });
+        },
+        // Chargement d'un board
+        'load': function (options) {
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return;
+            options = $.extend({
+                "sendBoardSize": false
+            }, options);
+            // 
+            var sdata = {
+                _t: new Date().getTime()
+            };
+            if(options.sendBoardSize) {
+                sdata.dw = $this.width();
+                sdata.dh = $this.height();
             }
-            // Evénément 'done' ?
-            if($.isFunction(options.done)) {
-                options.done.call($this, data);
+            var boardName = getBoardName($this, settings);
+            $.get(settings.api + "/board/" + boardName, sdata, function (data) {
+                // Erreur ?
+                if(data.status && data.status=="error") {
+                    if($.isFunction(settings.error)) {
+                        settings.error.call($this, data.message);
+                    }
+                    return;
+                }
+                // Enregistre la dernière mise à jour
+                if(data.lastUpdate){
+                    $this.data("lastUpdate", data.lastUpdate);
+                }
+                // Enregistre la taille de référence
+                $this.attr({
+                    "data-screen-width": options.width,
+                    "data-screen-height": options.height
+                });
+                // Calcul des ratios
+                var ratioX = $this.width() / data.size.width;
+                var ratioY = $this.height() / data.size.height;
+                // Récupération des modules actuellement affichés
+                var cModules = {};
+                $(".module", $this).each(function(){
+                    var $module = $(this);
+                    var id = $module.data("id");
+                    // Enregistre le module ou le supprime
+                    if(id && id!==""){
+                        cModules[id] = false;
+                    }else{
+                        $module.remove();
+                    }
+                });
+                // Traitement de chaque module recu
+                $.each(data.modules, function(idx, mod){
+                    var id = mod.id;
+                    if(id && id!=="") {
+                        // Recherche un module existant
+                        var smodule = $(".module[data-id='"+id+"']", $this);
+                        if(smodule.length==0){
+                            // Le module n'existe pas on le créé
+                            smodule = $.fn.board.commands.moduleAdd.call($this, {
+                                "id": id,
+                                "module": mod.module,
+                                "title": mod.title 
+                            });
+                        }
+                        // Modification des modules
+                        smodule.css({
+                            left: (mod.x * ratioX) + "px",
+                            top: (mod.y * ratioY) + "px"
+                        }).attr({
+                            "data-module": mod.module
+                        }).width(Math.max(12, mod.w * ratioX))
+                        .height(Math.max(12, mod.h * ratioY));
+                        // Marque le module comme défini
+                        cModules[id] = true;
+                    }
+                });
+                // Supprime tous les modules qui n'ont pas été traités
+                for (var key in cModules) {
+                    if (cModules.hasOwnProperty(key)) {
+                        if(cModules[key]===false){
+                            $.fn.board.commands.moduleDelete.call($this, {
+                                "module": key
+                            });
+                        }
+                    }
+                }
+                // Evénément 'done' ?
+                if($.isFunction(options.done)) {
+                    options.done.call($this, data);
+                }
+                
+                // Evénément 'board.loaded'
+                $this.trigger('board.loaded');
+            }, "json");
+        },    
+        // Insertion d'un module 
+        'moduleAdd': function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return false;
+            
+            options = $.extend({
+                "id": 0,
+                "module": "",
+                "title": "",
+                "done": function($board, $module){},
+                "save": true
+            }, options);
+            
+            // Calcul le prochain id si nécessaire
+            if(options.id === 0) {
+                var lastId = 0;
+                $(".module", $this).each(function(){
+                    var mid = parseInt($(this).data("id"));
+                    if(!isNaN(mid)) lastId = Math.max(mid, lastId);
+                });
+                options.id = lastId + 1;            
             }
             
-            // Evénément 'board.loaded'
-            $this.trigger('board.loaded');
-        }, "json");
-    };
-    
-    // Enregistrement d'un board
-    var saveCommand = function(){
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return;
-        // Extraction des informations de layout
-        var layout = {
-            size: {
-                width: $this.data("screen-width"),
-                height: $this.data("screen-height")
-            },
-            modules: []
-        };
-        $(".module", $this).each(function(){
-            var $module = $(this);
-            var p = $module.position();
-            layout.modules.push({
-                x: p.left,
-                y: p.top,
-                w: $module.width(),
-                h: $module.height(),
-                id: $module.data("id"),
-                module: $module.data("module"),
-                title: $module.data("title")
+            // Création du module
+            $module = $( parseTemplate(settings.moduleTemplate, options) );
+            $module.attr("data-id", options.id);
+            $module.attr("data-module", options.module);
+            $module.attr("data-title", options.title != "" ? options.title : options.module);
+            
+            // Insertion 
+            $this.append($module);
+            
+            // Activation du mode édition
+            if(settings.editable) {
+                setModuleEditor($this, $module);
+            }
+            
+            // Evénément 'done'
+            if($.isFunction(options.done)) {
+                options.done($this, $module);
+            }
+            
+            // Evénément 'module.added'
+            if($.isFunction(options.moduleAdded)) {
+                options.moduleAdded.call($this, $module);
+            }
+            $this.trigger('module.added', $module);
+            
+            return $module;
+        },        
+        // Suppression d'un module 
+        'moduleDelete': function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return false;
+            
+            // Construction des options
+            if(!($.isArray(options) || $.isPlainObject(options))){
+                options = {
+                    "module": options
+                };
+            }
+            options = $.extend({
+                "done": function($board, $module){},
+                "save": true
+            }, options);
+            
+            // Extraction du module
+            var $module = options.module;
+            if(!($module instanceof jQuery)){
+                $module = $(".module[data-id='"+module+"']", $this);  
+            }
+            if($module.length==0) return;
+            
+            // Supprime le module
+            $module.remove();
+            
+            // Evénément 'done'
+            if($.isFunction(options.done)) {
+                options.done($this, $module);
+            }
+            
+            // Evénément 'module.deleted'
+            if($.isFunction(options.moduleDeleted)) {
+                options.moduleDeleted.call($this, $module);
+            }
+            $this.trigger('module.deleted', $module);
+        },
+        // Appel d'api
+        'api': function(options){
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return;
+            
+            // Calcul des options
+            options = $.extend({}, $.fn.board.defaults.api, options);
+            
+            // Calcul l'url a appeler
+            var url = settings.api;
+            if(options.callType == "board") {
+                var boardName = getBoardName($this, settings);
+                url += "/board/" + boardName;
+            } 
+            url += options.path;
+            
+            // Provoque l'appel
+            $.ajax({
+                url: url,
+                type: options.method.toUpperCase(),
+                data: ($.isPlainObject(options.data) && options.method.toUpperCase() == "POST" ) ? JSON.stringify(options.data) : options.data,
+                dataType: options.dataType,
+                beforeSend: function(xhr) {
+                    if($.isFunction(options.beforeSend))
+                        options.beforeSend.call($this, xhr);
+                }
+            }).done(function(data, textStatus, jqXHR){
+                if($.isFunction(options.done))
+                    options.done.call($this, data, textStatus, jqXHR);
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                if($.isFunction(options.fail))
+                    options.fail.call($this, jqXHR, textStatus, errorThrown);
+            }).always(function(data, textStatus, jqXHR){
+                if($.isFunction(options.always))
+                    options.always.call($this, data, textStatus, jqXHR);
             });
-        });
-        // Transmission des données
-        var boardName = getBoardName($this, settings);
-        $.post(settings.api + "/board/" + boardName, JSON.stringify(layout));
-    };
-    
-    // Insertion d'un module 
-    var moduleAddCommand = function(options) {
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return false;
-        
-        options = $.extend({
-            "id": 0,
-            "module": "",
-            "title": "",
-            "done": function($board, $module){},
-            "save": true
-        }, options);
-        
-        // Calcul le prochain id si nécessaire
-        if(options.id === 0) {
-            var lastId = 0;
-            $(".module", $this).each(function(){
-                var mid = parseInt($(this).data("id"));
-                if(!isNaN(mid)) lastId = Math.max(mid, lastId);
-            });
-            options.id = lastId + 1;            
         }
-        
-        // Création du module
-        $module = $( parseTemplate(settings.moduleTemplate, options) );
-        $module.attr("data-id", options.id);
-        $module.attr("data-module", options.module);
-        $module.attr("data-title", options.title != "" ? options.title : options.module);
-        
-        // Insertion 
-        $this.append($module);
-        
-        // Activation du mode édition
-        if(settings.editable) {
-            setModuleEditor($this, $module);
-        }
-        
-        // Evénément 'done'
-        if($.isFunction(options.done)) {
-            options.done($this, $module);
-        }
-        
-        // Evénément 'module.added'
-        $this.trigger('module.added', $module);
-        
-        // Enregistrement du layout
-        if(options.save === true)
-            saveCommand.call($this);
-        return $module;
-    };
-    
-    // Suppression d'un module 
-    var moduleDeleteCommand = function(options) {
-        var $this = $(this);
-        var settings = $this.data("board-settings");
-        if(!settings) return false;
-        
-        // Construction des options
-        if(!($.isArray(options) || $.isPlainObject(options))){
-            options = {
-                "module": options
-            };
-        }
-        options = $.extend({
-            "done": function($board, $module){},
-            "save": true
-        }, options);
-        
-        // Extraction du module
-        var $module = options.module;
-        if(!($module instanceof jQuery)){
-            $module = $(".module[data-id='"+module+"']", $this);  
-        }
-        if($module.length==0) return;
-        
-        // Supprime le module
-        $module.remove();
-        
-        // Evénément 'done'
-        if($.isFunction(options.done)) {
-            options.done($this, $module);
-        }
-        
-        // Evénément 'module.deleted'
-        $this.trigger('module.deleted', $module);
-        
-        // Enregistrement du layout
-        if(options.save === true)
-            saveCommand.call($this);
-    };
-    
-    // Définition du mode éditeur
-    var setEditor = function($this){
-        $(".module", $this).each(function(){
-            setModuleEditor($this, $(this));
-        });
-    };
-    var setModuleEditor = function($board, $module){
-        // Si le module est déjà défini on passe
-        if($module.data("module-settings")) return false;
-        // Calcul des informations d'un module
-        var msettings = {
-        };
-        $module.data("module-settings", msettings);
-        // Activation du déplacement
-        $module.draggable({
-            containment: "parent",
-            snap: true,
-            snapMode: 'outer',
-            stop: function () {
-                saveCommand.call($board);
-            }
-        });
-        // Activation du dimensionnement
-        $module.resizable({
-            containment: "parent",
-            minWidth: 32,
-            minHeight: 32,
-            stop: function () {
-                saveCommand.call($board);
-            }
-        });
-        // Activation de la fermeture
-        $module.append($("<div class='handle-close'>&times;</div>"));
-        $(".handle-close", $module).click(function(e){
-            if(confirm("Etes-vous sûrs de vouloir supprimer ce module ?")){
-                moduleDeleteCommand.call($board, $module);
-            }
-        });
     };
     
     // Extraction du nom du tableau de bord

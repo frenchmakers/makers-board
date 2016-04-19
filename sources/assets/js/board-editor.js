@@ -21,6 +21,9 @@
                 case "load":
                     $.fn.boardEditor.commands.load.call($this, options);
                     break;
+                case "save":
+                    $.fn.boardEditor.commands.save.call($this, options);
+                    break;
                 case "resize":
                     $.fn.boardEditor.commands.resize.call($this, options);
                     break;
@@ -33,7 +36,7 @@
     };
     
     // Valeurs par défaut
-    $.fn.boardEditor.defauls = {
+    $.fn.boardEditor.defaults = {
         'enable': {}
     };
     
@@ -46,7 +49,7 @@
             if ($this.data("board-editor-settings"))
                 return false;
             // Enregistrement des paramètres
-            settings = $.extend({}, $.fn.boardEditor.defauls.enable, settings);
+            settings = $.extend({}, $.fn.boardEditor.defaults.enable, settings);
             $this.data("board-editor-settings", settings);
             // Activation du board de base
             $this.board("enable", {
@@ -108,9 +111,11 @@
             });
             
             // Transmission des données
-            //var boardName = getBoardName($this, settings);
-            //$.post(settings.api + "/board/" + boardName, JSON.stringify(layout));
-            
+            $this.board("api",{
+                callType: "board",
+                method: "POST",
+                data: layout
+            });
         },
         // Provoque le redimensionnement de l'éditeur
         'resize': function(options) {
@@ -157,10 +162,10 @@
                 var $module = $(this);
                 var p = $module.position();
                 $module.css({
-                    //left: (p.left * ratioX) + "px",
+                    left: (p.left * ratioX) + "px",
                     top: (p.top * ratioY) + "px"
                 })
-                //.width(Math.max(12, $module.width() * ratioX))
+                .width(Math.max(12, $module.width() * ratioX))
                 .height(Math.max(12, $module.height() * ratioY));    
             });
             
@@ -188,7 +193,7 @@
             snap: true,
             snapMode: 'outer',
             stop: function () {
-                //saveCommand.call($board);
+                $board.boardEditor("save");
             }
         });
         // Activation du dimensionnement
@@ -197,7 +202,7 @@
             minWidth: 32,
             minHeight: 32,
             stop: function () {
-                //saveCommand.call($board);
+                $board.boardEditor("save");
             }
         });
         // Activation de la fermeture
