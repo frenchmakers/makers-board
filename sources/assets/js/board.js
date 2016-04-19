@@ -172,8 +172,8 @@
                             top: (mod.y * ratioY) + "px"
                         }).attr({
                             "data-module": mod.module
-                        }).width(Math.max(12, mod.w * ratioX))
-                        .height(Math.max(12, mod.h * ratioY));
+                        }).outerWidth(Math.max(12, mod.w * ratioX))
+                        .outerHeight(Math.max(12, mod.h * ratioY));
                         // Marque le module comme défini
                         cModules[id] = true;
                     }
@@ -241,8 +241,8 @@
             }
             
             // Evénément 'module.added'
-            if($.isFunction(options.moduleAdded)) {
-                options.moduleAdded.call($this, $module);
+            if($.isFunction(settings.moduleAdded)) {
+                settings.moduleAdded.call($this, $module);
             }
             $this.trigger('module.added', $module);
             
@@ -255,20 +255,21 @@
             if(!settings) return false;
             
             // Construction des options
+            console.log(options);
             if(!($.isArray(options) || $.isPlainObject(options))){
                 options = {
                     "module": options
                 };
             }
+            console.log(options);
             options = $.extend({
-                "done": function($board, $module){},
-                "save": true
+                "done": function($board, $module){}
             }, options);
-            
+            console.log(options);
             // Extraction du module
             var $module = options.module;
             if(!($module instanceof jQuery)){
-                $module = $(".module[data-id='"+module+"']", $this);  
+                $module = $(".module[data-id='"+$module+"']", $this);  
             }
             if($module.length==0) return;
             
@@ -281,8 +282,8 @@
             }
             
             // Evénément 'module.deleted'
-            if($.isFunction(options.moduleDeleted)) {
-                options.moduleDeleted.call($this, $module);
+            if($.isFunction(settings.moduleDeleted)) {
+                settings.moduleDeleted.call($this, $module);
             }
             $this.trigger('module.deleted', $module);
         },

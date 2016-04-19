@@ -56,7 +56,14 @@
                 refresh: false,
                 editable: false,
                 board: function () { return $("#current-board").val(); },
-                moduleTemplate : '<div class="module" data-module="{{module}}" title="{{title}}"><div class="title">{{title}}</div></div>'
+                moduleTemplate: '<div class="module" data-module="{{module}}" title="{{title}}"><div class="title">{{title}}</div></div>',
+                moduleAdded: function($module){
+                    setModuleEditor($(this), $module);
+                    $this.boardEditor('save');
+                },
+                moduleDeleted: function($module){
+                    $this.boardEditor('save');
+                }
             });
             // Activation du mode edition
             setEditor($this);
@@ -102,8 +109,8 @@
                 layout.modules.push({
                     x: p.left * ratioX,
                     y: p.top * ratioY,
-                    w: $module.width() * ratioX,
-                    h: $module.height() * ratioY,
+                    w: $module.outerWidth() * ratioX,
+                    h: $module.outerHeight() * ratioY,
                     id: $module.data("id"),
                     module: $module.data("module"),
                     title: $module.data("title")
@@ -209,7 +216,9 @@
         $module.append($("<div class='handle-close'>&times;</div>"));
         $(".handle-close", $module).click(function(e){
             if(confirm("Etes-vous sûrs de vouloir supprimer ce module ?")){
-                //moduleDeleteCommand.call($board, $module);
+                $board.boardEditor("module.delete", {
+                    "module": $(this).parents(".module").first().data("id")
+                });
             }
         });
     };
@@ -243,12 +252,10 @@
         });
     });
     
-    return;
-    
     // Activation des liens d'ajout des modules
     $(".add-module-command").click(function(e){
         e.preventDefault();
-        $(".board-editor").board("module.add", {
+        $(".board-editor").boardEditor("module.add", {
             "module": $(this).data("module"),
             "title": $(this).data("title")
         });
