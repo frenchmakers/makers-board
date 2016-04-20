@@ -32,10 +32,15 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
     <script src="assets/js/board.js"></script>
     <script type="text/javascript">
         (function($) {
-            // Activation en mode non éditable
+            // Activation du tableau
             $(".board").board({
-                refresh: 3*1000,
-                editable: false
+                refresh: 3 * 1000
+            }).on("board.loaded", function(){
+                $this = $(this);
+                $(".module", $this).each(function(){
+                    var $module = $(this);
+                    $this.board('module.load',{module:$module.data("id")});
+                });
             });
         })(jQuery);
     </script>

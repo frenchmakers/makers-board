@@ -27,6 +27,9 @@
                 case "module.add":
                     $.fn.board.commands.moduleAdd.call($this, options);
                     break;
+                case "module.load":
+                    $.fn.board.commands.moduleLoad.call($this, options);
+                    break;
                 case "module.delete":
                     $.fn.board.commands.moduleDelete.call($this, options);
                     break;
@@ -55,6 +58,7 @@
             path: "/",
             callType: "",
             dataType: "json",
+            module: 0,
             beforeSend: null,
             done: null,
             fail: null,
@@ -248,6 +252,23 @@
             
             return $module;
         },        
+        // Chargement du contenu d'un module 
+        'moduleLoad': function(options) {
+            var $this = $(this);
+            var settings = $this.data("board-settings");
+            if(!settings) return false;
+            
+            options = $.extend({module: 0}, options);
+            
+            $this.board('api', {
+                callType: 'module',
+                module: options.module,
+                dataType: 'html',
+                done: function(data) {
+                    $(".module[data-id='"+options.module+"']").html(data);
+                }
+            });
+        },
         // Suppression d'un module 
         'moduleDelete': function(options) {
             var $this = $(this);
@@ -295,12 +316,16 @@
             
             // Calcul des options
             options = $.extend({}, $.fn.board.defaults.api, options);
+            options.data = $.extend({ _t: new Date().getTime()}, options.data);
             
             // Calcul l'url a appeler
             var url = settings.api;
             if(options.callType == "board") {
                 var boardName = getBoardName($this, settings);
                 url += "/board/" + boardName;
+            } else if(options.callType == "module") {
+                var boardName = getBoardName($this, settings);
+                url += "/board/" + boardName + "/module/" + options.module;
             } 
             url += options.path;
             

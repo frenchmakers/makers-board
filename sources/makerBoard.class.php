@@ -67,6 +67,19 @@ class makerBoard {
     }
     
     /*
+        Lecture de la configuration d'un module dans un board
+    */
+    public function getBoardModuleConfig($board, $module) {
+        $layout = $this->getBoardLayout($board);
+        if($layout === false) return false;
+        $layout = json_decode($layout);
+        foreach ($layout->modules as $mod) {
+            if($mod->id == $module) return $mod;
+        }
+        return false;
+    }
+    
+    /*
         Retourne la liste des modules disponibles
     */
     public function getModules() {
@@ -91,6 +104,15 @@ class makerBoard {
         }
         return $this->_Modules;
     }
+    
+    /*
+        Retourne la définition d'un module
+    */
+    public function getModule($code) {
+        $modules = $this->getModules();
+        return isset($modules[$code]) ? $modules[$code] : false;
+    }
+    
 }
 
 class makerBoardX{    

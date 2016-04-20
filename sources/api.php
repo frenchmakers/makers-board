@@ -10,10 +10,10 @@ $path = trim(isset($_SERVER["PATH_INFO"]) ? $_SERVER["PATH_INFO"] : "", " /");
 $response = FALSE;
 
 // Commande ping d'un board
-if( ($r = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) {
-    $update = $makerBoard->getBoardLastUpdate($r["board"]);
+if( ($urlData = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) {
+    $update = $makerBoard->getBoardLastUpdate($urlData["board"]);
     if($update === FALSE){
-        if($r["board"] == "default"){
+        if($urlData["board"] == "default"){
             $response = '0';
         }
     } else {
@@ -21,11 +21,11 @@ if( ($r = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) 
     }
 }
 // Commande board
-else if( ($r = urlMatch("board/{board}", $path)) !== FALSE ) {
+else if( ($urlData = urlMatch("board/{board}", $path)) !== FALSE ) {
     if($method == "get"){
-        $layout = $makerBoard->getBoardLayout($r["board"]);
+        $layout = $makerBoard->getBoardLayout($urlData["board"]);
         if($layout === FALSE) {
-            if($r["board"] == "default"){
+            if($urlData["board"] == "default"){
                 $response = '{ "lastUpdate": 0, "size": { "width":1024, "height":768 }, "modules": [] }';
             }
         } else {
@@ -33,24 +33,25 @@ else if( ($r = urlMatch("board/{board}", $path)) !== FALSE ) {
         }
     }else if($method == "post") {
         $json = file_get_contents('php://input');
-        $makerBoard->setBoardLayout($r["board"], $json);
+        $makerBoard->setBoardLayout($urlData["board"], $json);
         $response = TRUE;
     }
 }
-/*else if($path == "board"){
-    if($method == "get"){
-        // Lecture du fichier de positionnement
-        if(file_exists("datas/board.json")){
-            $response = file_get_contents("datas/board.json");
-        }else{
-            $response = '{ "size": { "width":1024, "height":768 } "modules": [] }';    
-        }        
-    } else if($method == "post"){
-        // MAJ du layout du board
-        file_put_contents("datas/board.json", json_encode($_POST));
-        $response = TRUE;
+// Commande : Récupération du contenu d'un module
+else if( ($urlData = urlMatch("board/{board}/module/{module}", $path)) !== FALSE ) {
+    if($method == "get") {
+        $moduleConfig = $makerBoard->getBoardModuleConfig($urlData['board'], $urlData['module']);
+        $module = $makerBoard->getModule($moduleConfig->module);
+        if($module !== false) {
+            $moduleFile = $module['folder']."/module.php";
+            if(is_file($moduleFile)) {
+                ob_start();
+                include($moduleFile);
+                $response = ob_get_clean();
+            }
+        }
     }
-}*/
+}
 
 // Traitement de la réponse
 if($response === FALSE) {
