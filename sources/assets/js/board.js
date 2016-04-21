@@ -230,14 +230,12 @@
             $module.attr("data-id", options.id);
             $module.attr("data-module", options.module);
             $module.attr("data-title", options.title != "" ? options.title : options.module);
+            $module.data("module-settings", {
+                'board': $this
+            });
             
             // Insertion 
             $this.append($module);
-            
-            // Activation du mode édition
-            if(settings.editable) {
-                setModuleEditor($this, $module);
-            }
             
             // Evénément 'done'
             if($.isFunction(options.done)) {

@@ -40,6 +40,9 @@
         'enable': {}
     };
     
+    // Le contenu de l'éditeur n'est pas encore chargé
+    var editorLoaded = false;
+    
     // Commandes
     $.fn.boardEditor.commands = {
         // Activation de l'éditeur
@@ -81,11 +84,16 @@
                         'height': data.size.height                        
                     });
                     setEditor($this);
+                    editorLoaded = true;
                 }
             });
         },
         // Enregistrement du layout
         'save' : function(options) {
+            // Tant que l'éditeur n'est pas chargé on ne sauvegarde rien pour ne pas écraser
+            // le board avec des valeurs incorrectes
+            if(!editorLoaded) return;
+            
             var $this = $(this);
             var settings = $this.data("board-editor-settings");
             if(!settings) return;
@@ -189,10 +197,11 @@
     };
     var setModuleEditor = function($board, $module){
         // Si le module est déjà défini on passe
-        if($module.data("module-settings")) return false;
+        var msettings = $module.data("module-settings"); 
+        if(!msettings) return false;
+        if(msettings.editor) return false;
         // Calcul des informations d'un module
-        var msettings = {
-        };
+        msettings.editor = true;
         $module.data("module-settings", msettings);
         // Activation du déplacement
         $module.draggable({
