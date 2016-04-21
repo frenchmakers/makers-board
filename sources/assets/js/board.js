@@ -231,7 +231,10 @@
             $module.attr("data-module", options.module);
             $module.attr("data-title", options.title != "" ? options.title : options.module);
             $module.data("module-settings", {
-                'board': $this
+                'board': $this,
+                'id': options.id,
+                'module': options.module,
+                'title': options.title                
             });
             
             // Insertion 
@@ -252,18 +255,27 @@
         },        
         // Chargement du contenu d'un module 
         'moduleLoad': function(options) {
-            var $this = $(this);
-            var settings = $this.data("board-settings");
-            if(!settings) return false;
+            // Cette commande peut être appelée depuis un board ou directement depuis le module
+            var bobj = getBoardInfos(this);
+            if(!bobj) return false;
             
+            var $this = bobj.board;
+            var settings = bobj.boardSettings;
             options = $.extend({module: 0}, options);
+            
+            // Si on est appelé depuis un board, le module doit être dans les options
+            if(bobj.module) {
+               var $module = bobj.module; 
+            } else {
+               var $module = $(".module[data-id='"+options.module+"']");
+            }
             
             $this.board('api', {
                 callType: 'module',
-                module: options.module,
+                module: $module.data("id"),
                 dataType: 'html',
                 done: function(data) {
-                    $(".module[data-id='"+options.module+"']").html(data);
+                    $module.html(data);
                 }
             });
         },
@@ -274,17 +286,16 @@
             if(!settings) return false;
             
             // Construction des options
-            console.log(options);
             if(!($.isArray(options) || $.isPlainObject(options))){
                 options = {
                     "module": options
                 };
             }
-            console.log(options);
+
             options = $.extend({
                 "done": function($board, $module){}
             }, options);
-            console.log(options);
+
             // Extraction du module
             var $module = options.module;
             if(!($module instanceof jQuery)){
@@ -367,6 +378,35 @@
             var n = tag.substring(2, tag.length-2);
             return (n in data) ? data[n] : "";
         });
+    };
+    
+    // Extraction des informations des boards et modules selon un élément
+    var getBoardInfos = function(element){
+        var $elm = $(element);
+        // Détermine si c'est un module
+        var settings = $elm.data("module-settings");
+        if(settings) {
+            // Définition des informations depuis le module
+            return {
+                'board': settings.board,
+                'boardSettings': settings.board.data("module-settings"),
+                'module': $elm,
+                'moduleSettings': settings
+            };
+        } else {
+            // Détermine si c'est un board
+            settings = $elm.data("board-settings");
+            if(settings) {
+                // Définition des informations depuis le board
+                return {
+                    'board': $elm,
+                    'boardSettings': settings,
+                    'module': null,
+                    'moduleSettings': null
+                };
+            }
+        }
+        return null;
     };
     
 })(jQuery);

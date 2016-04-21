@@ -39,7 +39,7 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
                 $this = $(this);
                 $(".module", $this).each(function(){
                     var $module = $(this);
-                    $this.board('module.load',{module:$module.data("id")});
+                    $module.board('module.load');
                 });
             });
         })(jQuery);
