@@ -19,6 +19,23 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
     <title>Maker Board</title>
 
     <link href="assets/css/board.css" rel="stylesheet" type="text/css" />
+    <?php
+    // Chargement des styles de tous les modules définis
+    foreach ($makerBoard->getModules() as $module) {
+        if(isset($module["styles"])) {
+            $styles = array();
+            if(is_array($module["styles"])) {
+                $styles = $module["styles"];
+            } else {
+                $styles = array($module["styles"]);
+            }
+            foreach ($styles as $style) {
+                echo("<link href='{$module['folder']}/$style' rel='stylesheet' type='text/css' />\n");
+            }
+        }
+    }
+    ?>
+    
 </head>
 
 <body>
@@ -30,6 +47,22 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
 
     <script src="assets/js/jquery-1.12.2.min.js"></script>
     <script src="assets/js/board.js"></script>
+    <?php
+    // Chargement des scripts de tous les modules définis
+    foreach ($makerBoard->getModules() as $module) {
+        if(isset($module["scripts"])) {
+            $scripts = array();
+            if(is_array($module["scripts"])) {
+                $scripts = $module["scripts"];
+            } else {
+                $scripts = array($module["scripts"]);
+            }
+            foreach ($scripts as $script) {
+                echo("<script src='{$module['folder']}/$script'></script>\n");
+            }
+        }
+    }
+    ?>
     <script type="text/javascript">
         (function($) {
             // Activation du tableau
