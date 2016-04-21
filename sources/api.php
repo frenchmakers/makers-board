@@ -48,6 +48,8 @@ else if( ($urlData = urlMatch("board/{board}/module/{module}", $path)) !== FALSE
                 ob_start();
                 include($moduleFile);
                 $response = ob_get_clean();
+            } else {
+                $response = "";
             }
         }
     }

@@ -1,5 +1,4 @@
 (function($){
-    return;
     var generateHorloge = function(){
         dows  = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
         mois  = ["janv", "f&eacute;v", "mars", "avril", "mai", "juin", "juillet", "ao&ucirc;t", "sept", "oct", "nov", "d&eacute;c"];
@@ -23,18 +22,10 @@
         return horloge_content;
     };
     
-    var refreshHorloge=function(){
-        $.module('horloge').html(generateHorloge());
-//        $.refreshModule('horloge', function(data){
-//            $.module('horloge').html(data);
-//        });
-    };
-    var horloge=function(){
-        setTimeout(function () {
-            refreshHorloge();
-            horloge();
-        }, 1000);
-    };
-    refreshHorloge();
+    setInterval(function() {
+        $(".module[data-module='horloge']").each(function(){
+            $(this).html(generateHorloge());
+        });
+    }, 1000);
     horloge();
 })(jQuery);
