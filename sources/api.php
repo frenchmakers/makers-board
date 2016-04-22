@@ -54,6 +54,15 @@ else if( ($urlData = urlMatch("board/{board}/module/{module}", $path)) !== FALSE
         }
     }
 }
+// Commande : Récupération de la configuration d'un module
+else if( ($urlData = urlMatch("board/{board}/module/{module}/config", $path)) !== FALSE ) {
+    if($method == "get") {
+        $response = array(
+            'status' => 'error',
+            'message' => "Ce module n'est pas configurable"
+        );
+    }
+}
 
 // Traitement de la réponse
 if($response === FALSE) {

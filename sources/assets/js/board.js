@@ -319,13 +319,22 @@
         },
         // Appel d'api
         'api': function(options){
-            var $this = $(this);
-            var settings = $this.data("board-settings");
-            if(!settings) return;
+            // Cette commande peut être appelée depuis un board ou directement depuis le module
+            var bobj = getBoardInfos(this);
+            if(!bobj) return false;
+            console.log(bobj);
+            var $this = bobj.board;
+            var settings = bobj.boardSettings;
             
             // Calcul des options
             options = $.extend({}, $.fn.board.defaults.api, options);
             options.data = $.extend({ _t: new Date().getTime()}, options.data);
+            
+            // Si on est appelé depuis un module on modifie les options
+            if(bobj.module) {
+                options.callType = 'module';
+                options.module = bobj.module.data("id");
+            }
             
             // Calcul l'url a appeler
             var url = settings.api;
@@ -389,7 +398,7 @@
             // Définition des informations depuis le module
             return {
                 'board': settings.board,
-                'boardSettings': settings.board.data("module-settings"),
+                'boardSettings': settings.board.data("board-settings"),
                 'module': $elm,
                 'moduleSettings': settings
             };

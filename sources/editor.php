@@ -77,9 +77,10 @@ $makerBoard = new makerBoard();
                             <ul>
                                 <?php
                                 foreach ($makerBoard->getModules() as $module) {
+                                    $isConfig = $module['config'] == true ? "true" : "false";
                                     echo(<<<HTML
 <li>
-    <a href="#" class="add-module-command" data-module="{$module['code']}" data-title="{$module['name']}">
+    <a href="#" class="add-module-command" data-module="{$module['code']}" data-title="{$module['name']}" data-config="$isConfig">
         {$module['name']}
     </a>
 </li>

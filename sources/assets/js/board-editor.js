@@ -230,6 +230,31 @@
                 });
             }
         });
+        // Activation de la configuration
+        $module.append('<a href="#" class="config-module-command">Configuration</a>');
+        $(".config-module-command", $module).click(function(e){
+            e.preventDefault();
+            configModule($board, $module);
+        });
+    };
+    var configModule = function($board, $module) {
+        $("#configModal .modal-title").text("Configuration de "+$module.data("title"));
+        $("#configModal .modal-body").html('<p>Chargement de la configuration</p>');
+        $("#configModal .btn-primary").attr("disabled", "disabled");
+        $("#configModal").modal({
+            'backdrop': 'static'
+        });
+        $module.board('api',{
+            path:"/config",
+            done: function(data){
+                if(data.status == "error"){
+                    $("#configModal .modal-body").html( $('<p></p>').text(data.message) );                    
+                } else {
+                    $("#configModal .modal-body").html(data.html);
+                    $("#configModal .btn-primary").removeAttr("disabled");                
+                }
+            }
+        });
     };
 
     // Initialisation du board
