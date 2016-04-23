@@ -19,6 +19,11 @@ $makerBoard = new makerBoard();
     <body>
         <div class="container">
             <h1>Configuration Maker Board</h1>
+            <div class="messages-template hidden">
+                <div class="alert alert-info alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>                
+            </div>
             <div class="messages">
             </div>
             
@@ -41,6 +46,7 @@ $makerBoard = new makerBoard();
                         </div>
                         <div class="panel-body">
                             <ul>
+                                <li><a href="#" class="refresh-all-command">Actualiser tous les tableaux de bord</a></li>
                             </ul>
                         </div>
                     </div>

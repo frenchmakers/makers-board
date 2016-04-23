@@ -5,7 +5,7 @@
 // $moduleConfig : Configuration du module en cours d'édition
 // $moduleParams : Paramètres du module en cours d'édition
 
-$images = explode("\n", $moduleParams['images']);
+$images = explode("\n", isset($moduleParams['images']) ? $moduleParams['images'] : "");
 foreach ($images as $image) {
     if(trim($image)=="") continue;
 ?>

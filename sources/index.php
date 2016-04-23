@@ -41,7 +41,7 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
 <body>
     <div class="layout">
         <h1></h1>
-        <div class="board" data-board="<?php echo($board) ?>">
+        <div class="board" data-board="<?php echo($board) ?>" data-update="<?php echo($makerBoard->getLastUpdate()) ?>">
         </div>
     </div>
 
@@ -81,6 +81,20 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
                 });
                 $(document).trigger('board.loaded', $this);
             });
+            // Gestion de l'acutalisation du système
+            setInterval(function(){
+                $(".board").board('api', {
+                    'callType': '',
+                    'path': '/ping',
+                    'dataType': 'text',
+                    done:function(data) {
+                        console.log(data, $(".board").data("update"));
+                        if($(".board").data("update")!=data){
+                            window.location.reload();
+                        }
+                    }
+                });
+            }, 10 * 1000);
         })(jQuery);
     </script>
 

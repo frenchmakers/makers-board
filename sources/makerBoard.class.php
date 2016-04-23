@@ -1,14 +1,24 @@
 <?php 
+// Version du système
+define("VERSION", "0.0.2");
 
+// Gestion du système
 class makerBoard {
     
     private $_Modules = NULL;
     
     /*
+        Calcul le dossier de données
+    */
+    private function getDataFolder() {
+        return __DIR__."/datas";
+    }
+    
+    /*
         Calcul le dossier de données d'un tableau de board
     */
     private function getBoardDataFolder($board) {
-        return __DIR__."/datas/boards/$board";
+        return $this->getDataFolder()."/boards/$board";
     }
     
     /*
@@ -30,6 +40,26 @@ class makerBoard {
         file_put_contents($file, $content);
     }
     
+    /*
+        Lecture de la dernière actualisation du système
+    */
+    public function getLastUpdate() {
+        $file = $this->getDataFolder()."last-update.txt";
+        if (is_file($file)) {
+            return VERSION."-".file_get_contents($file);
+        } else {
+            return VERSION."-0";
+        }
+    }
+
+    /*
+        Actualisation du système
+    */
+    public function setLastUpdate() {
+        $file = $this->getDataFolder()."last-update.txt";
+        file_put_contents($file, time());
+    }
+
     /*
         Lecture du layout d'un tableau de bord
     */
@@ -97,7 +127,7 @@ class makerBoard {
             if($mod->id == $module) {
                 $layout->modules[$key]->params = json_decode($json);
                 $this->writeBoardLayout($board, $layout);
-                return true;
+                return $layout->modules[$key]->params;
             }
         }
         return false;
@@ -140,26 +170,6 @@ class makerBoard {
 }
 
 class makerBoardX{    
-    /*
-        Lecture de la dernière actualisation du tableau de bord
-    */
-    public function getLastRefresh() {
-        $file = __DIR__."/datas/refresh-dashboard";
-        if (is_file($file)) {
-            return file_get_contents($file);
-        } else {
-            return "0";
-        }
-    }
-
-    /*
-        Actualisation du tableau de bord
-    */
-    public function setLastRefresh() {
-        $file = __DIR__."/datas/refresh-dashboard";
-        file_put_contents($file, time());
-    }
-
     /*
         Enregistrement du layout de tableau de bord
     */

@@ -116,15 +116,24 @@
             $(".module", $this).each(function(){
                 var $module = $(this);
                 var p = $module.position();
-                layout.modules.push({
+                var mod = {
                     x: p.left * ratioX,
                     y: p.top * ratioY,
                     w: $module.outerWidth() * ratioX,
                     h: $module.outerHeight() * ratioY,
                     id: $module.data("id"),
                     module: $module.data("module"),
-                    title: $module.data("title")
+                    title: $module.data("title"),
+                    params: {}
+                };
+                $.each(this.attributes, function() {
+                    var n = this.nodeName || this.name;
+                    if(n.substr(0, 11)=="data-param-") {
+                        var v = this.nodeValue || this.value;
+                        mod.params[n.substr(11)] = v;
+                    }
                 });
+                layout.modules.push(mod);
             });
             
             // Transmission des données
@@ -278,11 +287,28 @@
             'method': 'POST',
             'data': obj,
             'done': function(data){
-                //alert(JSON.stringify(data));
+                if(data.params) {
+                    $module = $(".module[data-id='"+$("#configModal").data("module")+"']");
+                    for (var name in data.params) {
+                        if (data.params.hasOwnProperty(name)) {
+                            $module.attr('data-param-'+name, data.params[name]);
+                        }
+                    }
+                }
                 $("#configModal").modal('hide');
             }
         });
     });
+    
+    // Gestion des messages
+    var displayMessage = function(message) {
+        $template = $($(".messages-template").html());
+        $template.append(message);
+        $(".messages").append($template);
+        setTimeout(function(){
+            $template.remove();
+        }, 10*1000);
+    };
     
     // Initialisation du board
     $(".board-editor").boardEditor();
@@ -325,6 +351,17 @@
             "module": $(this).data("module"),
             "title": $(this).data("title")
         });
+    });
+    
+    // Commandes de boards
+    $(".refresh-all-command").click(function(e){
+        e.preventDefault();
+        $(".board-editor").board('api',{
+            'callType': '',
+            'method': 'POST',
+            'path': '/update-system'
+        });
+        displayMessage("L'ordre d'actualisation a été émis.");
     });
 
 })(jQuery);

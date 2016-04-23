@@ -9,8 +9,17 @@ $path = trim(isset($_SERVER["PATH_INFO"]) ? $_SERVER["PATH_INFO"] : "", " /");
 
 $response = FALSE;
 
+// Commande ping général
+if( ($urlData = urlMatch("ping", $path)) !== FALSE && $method == "get" ) {
+    $response = $makerBoard->getLastUpdate();
+}
+// Commande pour actualiser le système
+else if( ($urlData = urlMatch("update-system", $path)) !== FALSE && $method == "post" ) {
+    $makerBoard->setLastUpdate();
+    $response = TRUE;
+}
 // Commande ping d'un board
-if( ($urlData = urlMatch("board/{board}/ping", $path)) !== FALSE && $method = "get" ) {
+else if( ($urlData = urlMatch("board/{board}/ping", $path)) !== FALSE && $method == "get" ) {
     $update = $makerBoard->getBoardLastUpdate($urlData["board"]);
     if($update === FALSE){
         if($urlData["board"] == "default"){
@@ -80,8 +89,11 @@ else if( ($urlData = urlMatch("board/{board}/module/{module}/config", $path)) !=
         }
     } else if($method == "post") {
         $json = file_get_contents('php://input');
-        $makerBoard->setBoardModuleConfig($urlData['board'], $urlData['module'], $json);
-        $response = TRUE;
+        $response = $makerBoard->setBoardModuleConfig($urlData['board'], $urlData['module'], $json);
+        $response = array(
+            'status' => 'ok',
+            'params' => $response
+        );
     }
 }
 
