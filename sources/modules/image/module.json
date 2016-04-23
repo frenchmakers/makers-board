@@ -1,5 +1,5 @@
 {
     "code": "image",
     "name":"Affichage d'une image",
-    "scriptsx": "image.js"
+    "scripts": "image.js"
 }

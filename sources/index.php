@@ -72,8 +72,14 @@ $board = trim(isset($_REQUEST["board"]) ? $_REQUEST["board"] : "default");
                 $this = $(this);
                 $(".module", $this).each(function(){
                     var $module = $(this);
-                    $module.board('module.load');
+                    $module.board('module.load', {
+                        done: function() {
+                            var $this = $(this);
+                            $(document).trigger('module.'+$this.data("module")+'.loaded', [$this]);
+                        }
+                    });
                 });
+                $(document).trigger('board.loaded', $this);
             });
         })(jQuery);
     </script>

@@ -170,6 +170,14 @@
                                 "title": mod.title 
                             });
                         }
+                        // Remplacement des paramètres
+                        if(mod.params) {
+                            for (var key in mod.params) {
+                                if (mod.params.hasOwnProperty(key)) {
+                                    smodule.attr('data-param-'+key, mod.params[key]);
+                                }
+                            }
+                        }
                         // Modification des modules
                         smodule.css({
                             left: (mod.x * ratioX) + "px",
@@ -276,6 +284,9 @@
                 dataType: 'html',
                 done: function(data) {
                     $module.html(data);
+                    if($.isFunction(options.done)) {
+                        options.done.call($module);
+                    }
                 }
             });
         },
@@ -322,13 +333,14 @@
             // Cette commande peut être appelée depuis un board ou directement depuis le module
             var bobj = getBoardInfos(this);
             if(!bobj) return false;
-            console.log(bobj);
+            
             var $this = bobj.board;
             var settings = bobj.boardSettings;
             
             // Calcul des options
             options = $.extend({}, $.fn.board.defaults.api, options);
-            options.data = $.extend({ _t: new Date().getTime()}, options.data);
+            if(options.method.toUpperCase() == "GET")
+                options.data = $.extend({ _t: new Date().getTime()}, options.data);
             
             // Si on est appelé depuis un module on modifie les options
             if(bobj.module) {

@@ -43,6 +43,7 @@ else if( ($urlData = urlMatch("board/{board}/module/{module}", $path)) !== FALSE
         $moduleConfig = $makerBoard->getBoardModuleConfig($urlData['board'], $urlData['module']);
         $module = $makerBoard->getModule($moduleConfig->module);
         if($module !== false) {
+            $moduleParams = isset($moduleConfig->params) ? (array)$moduleConfig->params : array();
             $moduleFile = $module['folder']."/module.php";
             if(is_file($moduleFile)) {
                 ob_start();
@@ -59,8 +60,28 @@ else if( ($urlData = urlMatch("board/{board}/module/{module}/config", $path)) !=
     if($method == "get") {
         $response = array(
             'status' => 'error',
-            'message' => "Ce module n'est pas configurable"
+            'message' => "Ce module n'est pas configurable."
         );
+        
+        $moduleConfig = $makerBoard->getBoardModuleConfig($urlData['board'], $urlData['module']);
+        $module = $makerBoard->getModule($moduleConfig->module);
+        if($module !== false) {
+            $moduleParams = isset($moduleConfig->params) ? (array)$moduleConfig->params : array();
+            $moduleConfigFile = $module['folder']."/config.php";
+            if(is_file($moduleConfigFile)) {
+                ob_start();
+                include($moduleConfigFile);
+                $response = ob_get_clean();
+                $response = array(
+                    'status' => 'ok',
+                    'html' => $response
+                );
+            }
+        }
+    } else if($method == "post") {
+        $json = file_get_contents('php://input');
+        $makerBoard->setBoardModuleConfig($urlData['board'], $urlData['module'], $json);
+        $response = TRUE;
     }
 }
 

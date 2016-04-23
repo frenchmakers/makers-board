@@ -241,7 +241,7 @@
         $("#configModal .modal-title").text("Configuration de "+$module.data("title"));
         $("#configModal .modal-body").html('<p>Chargement de la configuration</p>');
         $("#configModal .btn-primary").attr("disabled", "disabled");
-        $("#configModal").modal({
+        $("#configModal").data("module", $module.data("id")).modal({
             'backdrop': 'static'
         });
         $module.board('api',{
@@ -250,13 +250,38 @@
                 if(data.status == "error"){
                     $("#configModal .modal-body").html( $('<p></p>').text(data.message) );                    
                 } else {
-                    $("#configModal .modal-body").html(data.html);
+                    $("#configModal .modal-body").html( $("<form></form>").append(data.html) );
                     $("#configModal .btn-primary").removeAttr("disabled");                
                 }
             }
         });
     };
-
+    $("#configModal .btn-primary").click(function(e){
+        var params = $("#configModal .modal-body form").serializeArray();
+        var obj = {};
+        $.each(params, function(){
+            if(obj[this.name]) {
+                if(!obj[this.name].push){
+                    obj[this.name] = [o[this.name]];
+                }
+                obj[this.name].push(this.value);
+            } else {
+                obj[this.name] = this.value || '';
+            }
+        });
+        $(".board-editor").board('api',{
+            'callType': 'module',
+            'module': $("#configModal").data("module"),
+            'path': '/config',
+            'method': 'POST',
+            'data': obj,
+            'done': function(data){
+                //alert(JSON.stringify(data));
+                $("#configModal").modal('hide');
+            }
+        });
+    });
+    
     // Initialisation du board
     $(".board-editor").boardEditor();
 

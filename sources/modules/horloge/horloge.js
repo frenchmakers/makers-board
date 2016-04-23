@@ -21,11 +21,11 @@
 
         return horloge_content;
     };
-    
-    setInterval(function() {
+    var horloge = function(){
         $(".module[data-module='horloge']").each(function(){
             $(this).html(generateHorloge());
         });
-    }, 1000);
+    };
+    setInterval(horloge, 1000);
     horloge();
 })(jQuery);

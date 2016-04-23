@@ -38,10 +38,9 @@ class makerBoard {
     }
     
     /*
-        Ecriture du layout d'un tableau de bord
+        Méthode interne d'écriture du layout au format PHP
     */
-    public function setBoardLayout($board, $json) {
-        $layout = json_decode($json);
+    private function writeBoardLayout($board, $layout){
         // Calcul la valeur de mise à jour
         $lastUpdate = $this->getBoardLastUpdate($board);
         if($lastUpdate === FALSE) $lastUpdate = 1;
@@ -49,7 +48,15 @@ class makerBoard {
         $layout->lastUpdate = $lastUpdate;
         // Enregistrement des modifications
         $this->writeBoardDataFile($board, "layout.json", json_encode($layout));
-        $this->setBoardLastUpdate($board, $lastUpdate);
+        $this->setBoardLastUpdate($board, $lastUpdate);        
+    }
+    
+    /*
+        Ecriture du layout d'un tableau de bord
+    */
+    public function setBoardLayout($board, $json) {
+        $layout = json_decode($json);
+        $this->writeBoardLayout($board, $layout);
     }
     
     /*
@@ -75,6 +82,23 @@ class makerBoard {
         $layout = json_decode($layout);
         foreach ($layout->modules as $mod) {
             if($mod->id == $module) return $mod;
+        }
+        return false;
+    }
+    
+    /*
+        Ecriture de la configuration d'un module dans un board
+    */
+    public function setBoardModuleConfig($board, $module, $json) {
+        $layout = $this->getBoardLayout($board);
+        if($layout === false) return false;
+        $layout = json_decode($layout);
+        foreach ($layout->modules as $key => $mod) {
+            if($mod->id == $module) {
+                $layout->modules[$key]->params = json_decode($json);
+                $this->writeBoardLayout($board, $layout);
+                return true;
+            }
         }
         return false;
     }
