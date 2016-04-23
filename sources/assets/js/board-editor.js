@@ -79,6 +79,7 @@
             // Provoque un appel au board
             $this.board('load',{
                 done:function(data) {
+                    $("#board-title").val(data.title);
                     $this.boardEditor('resize',{
                         'width': data.size.width,
                         'height': data.size.height                        
@@ -108,6 +109,7 @@
             
             // Extraction des informations de layout
             var layout = {
+                title: $("#board-title").val(),
                 size: currentSize,
                 modules: []
             };
@@ -309,6 +311,11 @@
             'width': sw,
             'height': sh
         });
+    });
+    
+    // Gestion du titre
+    $("#board-title").blur(function() {
+        $(".board-editor").boardEditor('save');
     });
     
     // Activation des liens d'ajout des modules

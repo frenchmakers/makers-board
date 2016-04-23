@@ -31,7 +31,7 @@ $makerBoard = new makerBoard();
                             <option value="default">default: Makers board</option>
                         </select>
                         <label>Titre du tableau</label>
-                        <input type="text" name="boardTitle" class="form-control" value="Makers board" />
+                        <input id="board-title" name="boardTitle" type="text" class="form-control" value="Makers board" />
                     </div>
                 </div>
                 <div class="col-md-4">
