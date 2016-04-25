@@ -48,7 +48,7 @@ class makerBoard {
         Lecture de la dernière actualisation du système
     */
     public function getLastUpdate() {
-        $file = $this->getDataFolder()."last-update.txt";
+        $file = $this->getDataFolder()."/last-update.txt";
         if (is_file($file)) {
             return VERSION."-".file_get_contents($file);
         } else {
@@ -60,7 +60,7 @@ class makerBoard {
         Actualisation du système
     */
     public function setLastUpdate() {
-        $file = $this->getDataFolder()."last-update.txt";
+        $file = $this->getDataFolder()."/last-update.txt";
         file_put_contents($file, time());
     }
 
