@@ -2,6 +2,9 @@
 // Version du système
 define("VERSION", "0.0.2");
 
+// Inclusion de la configuration
+require_once 'config.php';
+
 // Gestion du système
 class makerBoard {
     
@@ -11,7 +14,8 @@ class makerBoard {
         Calcul le dossier de données
     */
     private function getDataFolder() {
-        return __DIR__."/datas";
+        global $config;
+        return $config['datas-folder'];
     }
     
     /*
