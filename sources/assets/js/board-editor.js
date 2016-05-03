@@ -162,19 +162,21 @@
                 'height': currentSize.height
             }, options);
             
-            // Calcul des ratios
+            // Redimensionne le board
             var tw = $this.width();
             var th = $this.height();
-            var ratioX = options.width / currentSize.width;
-            var ratioY = options.height / currentSize.height;
-            
-            // Redimensionne le board
             $this.attr({
                 "data-screen-width": options.width,
                 "data-screen-height": options.height
             });
             $this.height(options.height * (tw / options.width));
             
+            // Calcul des ratios
+            //var ratioX = currentSize.width / options.width;
+            //var ratioY = currentSize.height / options.height;
+            var ratioX = 1;
+            var ratioY = $this.height() / th;
+
             var size = $("#screen-size option[data-w=" + options.width + "][data-h=" + options.height + "]").val();
             if(!size || size=="") {
                 size = "custom";
@@ -189,12 +191,14 @@
             $(".module", $this).each(function(){
                 var $module = $(this);
                 var p = $module.position();
+                console.log($module.width(),$module.height());
                 $module.css({
                     left: (p.left * ratioX) + "px",
                     top: (p.top * ratioY) + "px"
                 })
                 .width(Math.max(12, $module.width() * ratioX))
                 .height(Math.max(12, $module.height() * ratioY));    
+                console.log($module.width(),$module.height());
             });
             
             // Evénément 'board.resized'
