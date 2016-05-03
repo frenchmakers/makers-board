@@ -29,9 +29,18 @@ else if( ($urlData = urlMatch("board/{board}/ping", $path)) !== FALSE && $method
         $response = $update;
     }
 }
+// Commande de lecture de la taille d'affichage d'un board
+else if( ($urlData = urlMatch("board/{board}/view-size", $path)) !== FALSE && $method == "get" ) {
+    $response = $makerBoard->getBoardViewSize($urlData["board"]);
+}
 // Commande board
 else if( ($urlData = urlMatch("board/{board}", $path)) !== FALSE ) {
-    if($method == "get"){
+    if($method == "get") {
+        $dw = isset($_REQUEST['dw']) ? intval($_REQUEST['dw']) : 0;
+        $dh = isset($_REQUEST['dh']) ? intval($_REQUEST['dh']) : 0;
+        if($dw>0 && $dh>0){
+            $makerBoard->setBoardViewSize($urlData["board"], $dw, $dh);
+        }
         $layout = $makerBoard->getBoardLayout($urlData["board"]);
         if($layout === FALSE) {
             if($urlData["board"] == "default"){
@@ -102,7 +111,7 @@ if($response === FALSE) {
     $response = '{"status":"error", "message":"Commande inconnue"}';
 } else if($response === TRUE) {
     $response = '{"status":"ok"}';
-} else if(is_array($response)){
+} else if(is_array($response) || is_object($response)){
     $response = json_encode($response);
 }
 echo($response);

@@ -57,7 +57,7 @@ $makerBoard = new makerBoard();
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-inline">
-                        <label>Ecran de référence</label>
+                        <label>Taille de référence</label>
                         <select id="screen-size" class="form-control">
                             <option value="800x600" data-w="800" data-h="600">800x600</option>
                             <option value="1024x768" data-w="1024" data-h="768">1024x768</option>
@@ -66,10 +66,11 @@ $makerBoard = new makerBoard();
                             <option value="1360x768" data-w="1360" data-h="768">1360x768</option>
                             <option value="1440x900" data-w="1440" data-h="900">1440x900</option>
                             <option value="1600x900" data-w="1600" data-h="900">1600x900</option>
-                            <option value="current">Taille actuelle</option>
+                            <option value="custom">Taille personnalisée</option>
                         </select>
-                        <label>Taille actuelle de l'affichage</label>
-                        <span id="current-screen-size" class="form-control-static"></span>
+                        <label>Taille actuelle du lecteur :</label>
+                        <span id="current-view-size" class="form-control-static">Non définie</span>
+                        <a id="set-as-current-size" href="#">Définir comme taille</a>
                     </div>
                     <div class="board-editor">
                     </div>

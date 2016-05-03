@@ -78,6 +78,7 @@
             if(!settings) return;
             // Provoque un appel au board
             $this.board('load',{
+                sendBoardSize: false,
                 done:function(data) {
                     $("#board-title").val(data.title);
                     $this.boardEditor('resize',{
@@ -175,14 +176,15 @@
             $this.height(options.height * (tw / options.width));
             
             var size = $("#screen-size option[data-w=" + options.width + "][data-h=" + options.height + "]").val();
-            if(!size || size=="") size = "current";
+            if(!size || size=="") {
+                size = "custom";
+                $("#screen-size option[value='custom']").attr({
+                    'data-w': options.width,
+                    'data-h': options.height,
+                }).text("Taille personnalisée: " + options.width + "x" + options.height);
+            }
             $("#screen-size").val(size);
                 
-            //$("#current-screen-size").attr({
-            //    "data-width": options.width,
-            //    "data-height": options.height,
-            //}).text(options.width + "x" + options.height);
-            
             // Repositionnement des modules
             $(".module", $this).each(function(){
                 var $module = $(this);
@@ -325,13 +327,8 @@
     // Gestion du sélecteur de la taille d'écran
     $("#screen-size").change(function () {
         var $opt = $("option:selected", this);
-        if ($opt.val() != "current") {
-            sw = $opt.data("w");
-            sh = $opt.data("h");
-        } else {
-            sw = $("#current-screen-size").data("width");
-            sh = $("#current-screen-size").data("height");
-        }
+        sw = $opt.data("w");
+        sh = $opt.data("h");
         $(".board-editor")
             .boardEditor("resize",{
             'width': sw,
@@ -363,5 +360,35 @@
         });
         displayMessage("L'ordre d'actualisation a été émis.");
     });
+
+    // Récupération de la taille de l'écran du lecteur
+    $("#set-as-current-size").click(function(e){
+        e.preventDefault();
+        var sw=$("#current-view-size").data("w");
+        var sh=$("#current-view-size").data("h");
+        $(".board-editor")
+            .boardEditor("resize",{
+            'width': sw,
+            'height': sh
+        });
+    });
+    $("#set-as-current-size").hide();
+    $("#current-view-size").text("Non définie");
+    var refreshCurrentViewSize = function(){
+        $(".board-editor").board('api',{
+            'callType': 'board',
+            'path': '/view-size',
+            'method': 'GET',
+            'done': function(data){
+                $("#current-view-size").text(data.dw+"x"+data.dh).attr({
+                    'data-w': data.dw,
+                    'data-h': data.dh,
+                });
+                $("#set-as-current-size").show();
+            }
+        });
+    };
+    setInterval(refreshCurrentViewSize, 10*1000);
+    refreshCurrentViewSize();
 
 })(jQuery);

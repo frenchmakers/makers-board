@@ -113,7 +113,7 @@
             var settings = $this.data("board-settings");
             if(!settings) return;
             options = $.extend({
-                "sendBoardSize": false
+                "sendBoardSize": true
             }, options);
             // 
             var sdata = {

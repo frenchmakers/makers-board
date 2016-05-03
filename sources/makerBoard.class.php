@@ -108,6 +108,28 @@ class makerBoard {
     }
     
     /*
+        Lecture de la taille de l'écran qui affiche le board
+    */
+    public function getBoardViewSize($board) {
+        $result = $this->readBoardDataFile($board, "view-size.json");
+        if($result===FALSE){
+            return array('dw'=>1280, 'dh'=>800);
+        } else {
+            return json_decode($result);
+        }
+    }    
+    
+    /*
+        Ecriture de la taille de l'écran qui affiche le board
+    */
+    public function setBoardViewSize($board, $dw, $dh) {
+        $this->writeBoardDataFile($board, "view-size.json", json_encode(array(
+            'dh' => $dh,
+            'dw' => $dw
+        )));
+    }    
+    
+    /*
         Lecture de la configuration d'un module dans un board
     */
     public function getBoardModuleConfig($board, $module) {
