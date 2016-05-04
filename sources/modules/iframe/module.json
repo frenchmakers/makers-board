@@ -1,0 +1,5 @@
+{
+    "code": "iframe",
+    "name": "Affichage d'un iframe",
+    "scripts": "iframe.js"
+}

@@ -40,7 +40,7 @@ h1{
 
 .module{
     position: absolute;
-    background-color: gray;
+    /*background-color: gray;*/
     width:100px;
     height:100px;
     top: 0px;
