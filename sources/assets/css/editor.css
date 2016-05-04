@@ -1,0 +1,67 @@
+.content {
+  color: white;
+}
+
+.board-editor{
+    background: #61A9CF;
+    height: 100px;
+    padding: 0px;
+    position: relative;
+}
+
+.board-editor .module{
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    width: 80px;
+    height: 80px;
+    top:0;
+    left:0;
+    background-color: white;
+    border: 1px solid gray;
+    margin: 0;
+    padding: 2px;
+    cursor: move;
+}
+
+.board-editor .module .title{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.board-editor .module .ui-resizable-se {
+    position: absolute;
+    z-index: 1;
+    width: 20px;
+    height: 20px;
+    bottom: -8px;
+    right: -8px;
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pg08IS0tIEdlbmVyYXRvcjogQWRvYmUgRmlyZXdvcmtzIENTNiwgRXhwb3J0IFNWRyBFeHRlbnNpb24gYnkgQWFyb24gQmVhbGwgKGh0dHA6Ly9maXJld29ya3MuYWJlYWxsLmNvbSkgLiBWZXJzaW9uOiAwLjYuMSAgLS0+DTwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DTxzdmcgaWQ9IlVudGl0bGVkLVBhZ2UlMjAxIiB2aWV3Qm94PSIwIDAgNiA2IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZmZmZmZmMDAiIHZlcnNpb249IjEuMSINCXhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiDQl4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjZweCIgaGVpZ2h0PSI2cHgiDT4NCTxnIG9wYWNpdHk9IjAuMzAyIj4NCQk8cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iIzAwMDAwMCIvPg0JPC9nPg08L3N2Zz4=');
+    background-position: top left;
+    background-repeat: no-repeat;
+    cursor: se-resize;
+    z-index: 20;
+}
+
+.board-editor .module .handle-close{
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right:1px;
+    top:1px;
+    color:gray;
+    z-index: 100;
+    text-decoration: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12px;
+}
+.board-editor .module .handle-close:hover{
+    text-decoration: none;
+    color: black;
+}
+

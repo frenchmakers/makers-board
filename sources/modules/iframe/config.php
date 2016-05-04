@@ -4,13 +4,9 @@
 // $module : Informations générales sur le module
 // $moduleConfig : Configuration du module en cours d'édition
 // $moduleParams : Paramètres du module en cours d'édition
-
-$images = explode("\n", isset($moduleParams['images']) ? $moduleParams['images'] : "");
-foreach ($images as $image) {
-    if(trim($image)=="") continue;
+$url = isset($moduleParams['url']) ? $moduleParams['url'] : "";
 ?>
-<img style="width:100%;height:auto" src="<?php echo($image) ?>">
-</img> 
-<?php
-}
-?>
+<div class="form-group">
+    <label>URL affiché</label>
+    <input name="url" class="form-control" ><?php echo(htmlentities($url)) ?></input>
+</div>

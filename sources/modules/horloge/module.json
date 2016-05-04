@@ -2,7 +2,5 @@
     "code": "horloge",
     "name": "Module horloge",
     "scripts": "horloge.js",
-    "styles": "horloge.css",
-    "w":4,
-    "h":3
+    "styles": "horloge.css"
 }

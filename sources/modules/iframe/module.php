@@ -5,12 +5,6 @@
 // $moduleConfig : Configuration du module en cours d'édition
 // $moduleParams : Paramètres du module en cours d'édition
 
-$images = explode("\n", isset($moduleParams['images']) ? $moduleParams['images'] : "");
-foreach ($images as $image) {
-    if(trim($image)=="") continue;
+$url = isset($moduleParams['url']) ? $moduleParams['url'] : "";
 ?>
-<img style="width:100%;height:auto" src="<?php echo($image) ?>">
-</img> 
-<?php
-}
-?>
+<iframe style="width:100%;height:100%;border:none;" src="<?php echo($url) ?>"></iframe>

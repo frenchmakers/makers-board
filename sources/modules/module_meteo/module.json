@@ -1,7 +1,0 @@
-{
-    "code": "meteo",
-    "name":"Module meteo",
-    "scripts": "meteo.js",
-    "w":3,
-    "h":3
-}

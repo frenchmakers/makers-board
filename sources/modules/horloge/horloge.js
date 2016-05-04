@@ -21,19 +21,11 @@
 
         return horloge_content;
     };
-    
-    var refreshHorloge=function(){
-        $.module('horloge').html(generateHorloge());
-//        $.refreshModule('horloge', function(data){
-//            $.module('horloge').html(data);
-//        });
+    var horloge = function(){
+        $(".module[data-module='horloge']").each(function(){
+            $(this).html(generateHorloge());
+        });
     };
-    var horloge=function(){
-        setTimeout(function () {
-            refreshHorloge();
-            horloge();
-        }, 1000);
-    };
-    refreshHorloge();
+    setInterval(horloge, 1000);
     horloge();
 })(jQuery);
